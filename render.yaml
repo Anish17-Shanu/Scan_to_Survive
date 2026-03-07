@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: scan-to-survive-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true

@@ -1,0 +1,44 @@
+{
+  "name": "scan-to-survive-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "check": "tsc --noEmit",
+    "test:core": "tsx --test tests/**/*.test.ts",
+    "test:scenario": "node scripts/simulate-10-teams.mjs",
+    "hash:password": "node scripts/hash-password.mjs",
+    "qr:generate": "node scripts/generate-qrs.mjs",
+    "stress:test": "node scripts/stress-test.mjs",
+    "simulate:10": "node scripts/simulate-10-teams.mjs",
+    "simulate:28": "node scripts/simulate-28-combinations.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "qrcode": "^1.5.4",
+    "winston": "^3.17.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.8.6",
+    "@types/ws": "^8.5.12",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

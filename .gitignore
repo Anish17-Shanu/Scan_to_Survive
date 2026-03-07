@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.env.local
+backend/qrcodes
+frontend/dist
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
