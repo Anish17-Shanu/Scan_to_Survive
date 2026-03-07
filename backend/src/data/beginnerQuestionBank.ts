@@ -53,6 +53,15 @@ const d1Bank: BankEntry[] = [
   { category: "security", question: "Practice of proving identity before access is granted?", answer: "authentication" },
   { category: "security", question: "Practice of deciding what an authenticated user can do?", answer: "authorization" },
   { category: "cloud", question: "On-demand computing resources delivered over the internet are called?", answer: "cloud computing" }
+  ,
+  { category: "coding", question: "In programming, a set of instructions that performs a task is called?", answer: "function" },
+  { category: "coding", question: "Data type used for true/false values?", answer: "boolean" },
+  { category: "python", question: "Python keyword used to define a function?", answer: "def" },
+  { category: "java", question: "Java keyword to define a class?", answer: "class" },
+  { category: "c", question: "Header file commonly used for printf in C?", answer: "stdio.h" },
+  { category: "coding", question: "Symbol used for single-line comments in Python?", answer: "#" },
+  { category: "coding", question: "Symbol used for single-line comments in Java/C/C++?", answer: "//" },
+  { category: "coding", question: "Operator used to assign value to a variable in most languages?", answer: "=" }
 ];
 
 const d2Bank: BankEntry[] = [
@@ -94,7 +103,17 @@ const d2Bank: BankEntry[] = [
   { category: "security", question: "A one-way transformation used to verify integrity?", answer: "hashing" },
   { category: "cloud", question: "Cloud model where provider manages runtime but not app code?", answer: "iaas" },
   { category: "cloud", question: "Cloud model where provider manages runtime and platform for your code?", answer: "paas" },
-  { category: "cloud", question: "Cloud model where users consume complete application over internet?", answer: "saas" }
+  { category: "cloud", question: "Cloud model where users consume complete application over internet?", answer: "saas" },
+  { category: "python", question: "Python built-in to get length of list/string?", answer: "len" },
+  { category: "python", question: "Python keyword to iterate over items?", answer: "for" },
+  { category: "java", question: "Java keyword used for inheritance?", answer: "extends" },
+  { category: "java", question: "Java access modifier for widest visibility?", answer: "public" },
+  { category: "c", question: "In C, format specifier for integer in printf?", answer: "%d" },
+  { category: "c", question: "In C, function used to read formatted input from stdin?", answer: "scanf" },
+  { category: "coding", question: "Common loop keyword used in Java, C, and JavaScript?", answer: "while" },
+  { category: "coding", question: "Keyword used to exit a loop immediately?", answer: "break" },
+  { category: "coding", question: "Keyword used to skip to next loop iteration?", answer: "continue" },
+  { category: "coding", question: "OOP principle of wrapping data and methods together?", answer: "encapsulation" }
 ];
 
 const d3Bank: BankEntry[] = [
@@ -110,7 +129,7 @@ const d3Bank: BankEntry[] = [
   { category: "web", question: "Cross-Origin Resource Sharing is abbreviated as?", answer: "cors" },
   { category: "database", question: "Database property ensuring each transaction is all-or-nothing?", answer: "atomicity" },
   { category: "database", question: "Index generally speeds up which operation: read or write?", answer: "read" },
-  { category: "database", question: "Normal form that removes partial dependency on composite keys?", answer: "second normal form" },
+  { category: "database", question: "Normal form that removes partial dependency on composite keys?", answer: "2nf|second normal form" },
   { category: "database", question: "SQL clause used to filter grouped results?", answer: "having" },
   { category: "database", question: "Primary key can contain NULL values: yes or no?", answer: "no" },
   { category: "network", question: "In the TCP/IP model, IP belongs to which layer?", answer: "internet layer" },
@@ -133,7 +152,17 @@ const d3Bank: BankEntry[] = [
   { category: "dsa", question: "Data structure that follows FIFO order?", answer: "queue" },
   { category: "dsa", question: "Data structure that follows LIFO order?", answer: "stack" },
   { category: "cloud", question: "Container orchestration platform by CNCF and Google origin?", answer: "kubernetes" },
-  { category: "cloud", question: "Artifact that describes container image build steps?", answer: "dockerfile" }
+  { category: "cloud", question: "Artifact that describes container image build steps?", answer: "dockerfile" },
+  { category: "python", question: "Output of Python: type([]).__name__", answer: "list" },
+  { category: "python", question: "Python data type for key-value pairs?", answer: "dict|dictionary" },
+  { category: "python", question: "Python keyword used for exception handling block start?", answer: "try" },
+  { category: "java", question: "JVM stands for?", answer: "java virtual machine" },
+  { category: "java", question: "Java collection that does not allow duplicate elements?", answer: "set" },
+  { category: "java", question: "Keyword used to create object instance in Java?", answer: "new" },
+  { category: "c", question: "In C, operator used to access value via pointer?", answer: "*" },
+  { category: "c", question: "In C, keyword used to declare a constant variable?", answer: "const" },
+  { category: "c", question: "In C, memory allocated with malloc should be released using?", answer: "free" },
+  { category: "coding", question: "Algorithmic approach where a problem is solved by solving smaller subproblems?", answer: "dynamic programming" }
 ];
 
 const d4Bank: BankEntry[] = [
@@ -172,7 +201,17 @@ const d4Bank: BankEntry[] = [
   { category: "ai", question: "Field focused on training models from data is called?", answer: "machine learning" },
   { category: "ai", question: "Neural network type commonly used for images (abbrev)?", answer: "cnn" },
   { category: "ai", question: "Metric that measures correct positives among predicted positives?", answer: "precision" },
-  { category: "ai", question: "Metric that measures correct positives among actual positives?", answer: "recall" }
+  { category: "ai", question: "Metric that measures correct positives among actual positives?", answer: "recall" },
+  { category: "python", question: "Output of Python: 3 // 2", answer: "1" },
+  { category: "python", question: "Output of Python: 'A' * 3", answer: "aaa" },
+  { category: "python", question: "Python keyword used to define anonymous function?", answer: "lambda" },
+  { category: "java", question: "In Java, method entry point is named?", answer: "main" },
+  { category: "java", question: "Java primitive type for 64-bit integer?", answer: "long" },
+  { category: "java", question: "In Java, keyword used to prevent method overriding?", answer: "final" },
+  { category: "c", question: "In C, array index starts from?", answer: "0" },
+  { category: "c", question: "In C, operator used to get address of variable?", answer: "&" },
+  { category: "c", question: "In C, keyword for conditional branch alternative to if?", answer: "else" },
+  { category: "coding", question: "Big-O of accessing element by index in array/list?", answer: "o(1)" }
 ];
 
 const d5Bank: BankEntry[] = [
@@ -189,7 +228,7 @@ const d5Bank: BankEntry[] = [
   { category: "database", question: "SQL clause order: SELECT ... FROM ... WHERE ... ___ ...", answer: "group by" },
   { category: "database", question: "SQL function to get maximum value in a column?", answer: "max" },
   { category: "database", question: "SQL function to get minimum value in a column?", answer: "min" },
-  { category: "database", question: "Normal form that removes transitive dependencies?", answer: "third normal form" },
+  { category: "database", question: "Normal form that removes transitive dependencies?", answer: "3nf|third normal form" },
   { category: "database", question: "Property ensuring committed transactions survive power loss?", answer: "durability" },
   { category: "network", question: "Protocol used to securely transfer files over SSH?", answer: "sftp" },
   { category: "network", question: "Name resolution failure is usually related to which service?", answer: "dns" },
@@ -200,8 +239,8 @@ const d5Bank: BankEntry[] = [
   { category: "git", question: "Command to show one-line commit history graph style?", answer: "git log --oneline" },
   { category: "git", question: "Git command to apply commits from another branch onto current branch one by one?", answer: "git rebase" },
   { category: "git", question: "Git command to show who changed each line in file?", answer: "git blame" },
-  { category: "security", question: "Type of vulnerability where untrusted input alters SQL query meaning?", answer: "sql injection" },
-  { category: "security", question: "Type of attack where script is injected into trusted web page?", answer: "cross site scripting" },
+  { category: "security", question: "Type of vulnerability where untrusted input alters SQL query meaning?", answer: "sql injection|sqli" },
+  { category: "security", question: "Type of attack where script is injected into trusted web page?", answer: "cross site scripting|xss" },
   { category: "security", question: "Security acronym for Confidentiality, Integrity, Availability?", answer: "cia triad" },
   { category: "security", question: "Hashing algorithm currently considered insecure due to collisions and often avoided?", answer: "md5" },
   { category: "cloud", question: "AWS object storage service name?", answer: "s3" },
@@ -211,12 +250,44 @@ const d5Bank: BankEntry[] = [
   { category: "cloud", question: "Practice of frequently merging small code changes to main branch?", answer: "continuous integration" },
   { category: "ai", question: "Model output quality generally evaluated on unseen data called?", answer: "test set" },
   { category: "ai", question: "Problem where model learns training data too well and performs poorly on new data?", answer: "overfitting" },
-  { category: "ai", question: "Technique to reduce overfitting by dropping neurons during training?", answer: "dropout" }
+  { category: "ai", question: "Technique to reduce overfitting by dropping neurons during training?", answer: "dropout" },
+  { category: "python", question: "Output of Python: bool([])", answer: "false" },
+  { category: "python", question: "Python built-in to iterate with index and value?", answer: "enumerate" },
+  { category: "python", question: "Python method to add item at end of list?", answer: "append" },
+  { category: "java", question: "Java keyword used to implement an interface?", answer: "implements" },
+  { category: "java", question: "Java exception type at top of throwable hierarchy branch for recoverable conditions?", answer: "exception" },
+  { category: "java", question: "Java collection class for key-value mapping?", answer: "hashmap|map" },
+  { category: "c", question: "In C, standard function to compute string length?", answer: "strlen" },
+  { category: "c", question: "In C, file extension typically used for header files?", answer: ".h|h" },
+  { category: "c", question: "In C, function that returns integer from string conversion?", answer: "atoi" },
+  { category: "coding", question: "Traversal type that goes level by level in a tree?", answer: "bfs|breadth first search" },
+  { category: "coding", question: "Traversal type that goes deep before backtracking in a tree/graph?", answer: "dfs|depth first search" },
+  { category: "coding", question: "Technique where function calls itself to solve smaller instance?", answer: "recursion" }
 ];
+
+function answerFormatHint(answer: string): string {
+  const variants = answer
+    .split("|")
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (variants.length > 1) {
+    return `type one accepted form, e.g. ${variants.map((v) => `"${v}"`).join(" or ")}`;
+  }
+
+  const token = variants[0] ?? "";
+  if (/^\d+(\.\d+)?$/.test(token)) return "number only";
+  if (token.includes(" ")) return "lowercase phrase";
+  if (token.startsWith("git ") || token.includes(".") || token.includes("/") || token.includes("#")) {
+    return "exact token or command";
+  }
+  return "single word or token";
+}
 
 function push(rows: QuestionSeed[], eventId: string, difficulty: number, entry: BankEntry, serial: number): void {
   const cycle = Math.floor(serial / 100) + 1;
-  const questionText = cycle === 1 ? entry.question : `${entry.question} (Set ${cycle})`;
+  const withSet = cycle === 1 ? entry.question : `${entry.question} (Set ${cycle})`;
+  const questionText = `${withSet} [Answer format: ${answerFormatHint(entry.answer)}]`;
   rows.push({
     event_config_id: eventId,
     difficulty_level: difficulty,

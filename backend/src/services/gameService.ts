@@ -103,6 +103,22 @@ function normalize(answer: string): string {
   return answer.trim().toLowerCase();
 }
 
+function answerVariants(answer: string): string[] {
+  return answer
+    .split("|")
+    .map((v) => normalize(v))
+    .filter(Boolean);
+}
+
+function isAnswerMatch(submitted: string, expected: string): boolean {
+  const submittedNorm = normalize(submitted);
+  return answerVariants(expected).some((variant) => variant === submittedNorm);
+}
+
+function primaryAnswer(expected: string): string {
+  return answerVariants(expected)[0] ?? "";
+}
+
 function parseScannedCode(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "";
@@ -144,8 +160,9 @@ function startsWithCode(value: string, prefix: string): boolean {
   return value.trim().toUpperCase().startsWith(prefix.trim().toUpperCase());
 }
 
-function chooseRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+function chooseRandom<T>(arr: T[]): T | null {
+  if (arr.length === 0) return null;
+  return arr[Math.floor(Math.random() * arr.length)] ?? null;
 }
 
 function difficultyForMainStep(step: number): number {
@@ -172,6 +189,7 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
     const pool = await listQuestionsByDifficulty(eventId, difficultyForMainStep(order));
     if (pool.length === 0) throw new ApiError(500, "Missing main round questions");
     const picked = chooseRandom(pool);
+    if (!picked) throw new ApiError(500, "Missing main round questions");
     rows.push({
       event_config_id: eventId,
       team_id: teamId,
@@ -188,6 +206,7 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
     const rapidPool = await listQuestionsByDifficulty(eventId, 5);
     if (rapidPool.length === 0) throw new ApiError(500, "Missing rapid-fire questions");
     const picked = chooseRandom(rapidPool);
+    if (!picked) throw new ApiError(500, "Missing rapid-fire questions");
     rows.push({
       event_config_id: eventId,
       team_id: teamId,
@@ -254,7 +273,8 @@ function buildRoomClue(
   const clueStyle = CLUE_STYLES[styleSeed % CLUE_STYLES.length];
   const raw = digitsOnly(room.room_number);
   const floor = room.floor ?? 0;
-  const plusFloor = String(Number.parseInt(raw, 10) + floor);
+  const parsedRoom = Number.parseInt(raw, 10);
+  const plusFloor = Number.isNaN(parsedRoom) ? raw : String(parsedRoom + floor);
   const reversed = raw.split("").reverse().join("");
   const shifted = raw
     .split("")
@@ -319,6 +339,16 @@ function buildRoomClue(
     ...clue,
     layer_one: `Token seed (${unlockToken}) tells you style: ${clueStyle.toUpperCase()}`,
     layer_two: clue.clue_text
+  };
+}
+
+function fallbackClue(message: string) {
+  return {
+    clue_style: "fallback",
+    title: "Fallback Route Clue",
+    clue_text: message,
+    decode_hint: "Cross-check with your teammate and continue to the next instructed checkpoint.",
+    unlock_token: "fallback"
   };
 }
 
@@ -816,7 +846,9 @@ export async function startGame(teamId: string) {
     },
     final_key_brief: buildFinalKeyBrief(event.id, rooms),
     final_key_state: await getFinalKeyState(event.id, updated.id),
-    next_room_clue: initialTarget ? buildRoomClue(initialTarget, updated.current_order, answerToken(updated.team_name), false) : null
+    next_room_clue: initialTarget
+      ? buildRoomClue(initialTarget, updated.current_order, answerToken(updated.team_name), false)
+      : fallbackClue("Primary route clue unavailable. Proceed to event desk for immediate route sync.")
   };
 }
 
@@ -1191,7 +1223,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       orderNumber: team.current_order
     });
     if (!rapidQ) throw new ApiError(500, "Rapid-fire question missing");
-    const correct = normalize(input.answer) === normalize(rapidQ.cached_answer);
+    const correct = isAnswerMatch(input.answer, rapidQ.cached_answer);
     const nextCombo = correct ? team.combo_streak + 1 : 0;
     const mult = 1 + Math.min(0.5, team.combo_streak * 0.1);
     const rapidRemaining = Math.max(0, RAPID_FIRE_DURATION_SECONDS - rapidElapsed);
@@ -1266,7 +1298,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       trapRoomCode: currentRoom.room_code,
       difficultySeed: Math.max(1, Math.min(5, team.current_order))
     });
-    const trapCorrect = normalize(input.answer) === normalize(trapQuestion.answer);
+    const trapCorrect = isAnswerMatch(input.answer, trapQuestion.answer);
 
     if (trapCorrect) {
       const escaped = await updateTeamWithVersion(team.id, team.version, {
@@ -1328,7 +1360,13 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
             false,
             true
           )
-        : null
+        : buildRoomClue(
+            expected,
+            trappedAgain.current_order + trappedAgain.story_fragments_collected + stableHash(answerToken(input.answer)),
+            answerToken(input.answer),
+            false,
+            true
+          )
     };
   }
 
@@ -1343,7 +1381,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
   });
   if (!question) throw new ApiError(500, "Question cache missing");
 
-  const isCorrect = normalize(input.answer) === normalize(question.cached_answer);
+  const isCorrect = isAnswerMatch(input.answer, question.cached_answer);
   const fragmentMeta =
     isCorrect && team.story_fragments_collected < STORY_FRAGMENTS.length
       ? STORY_FRAGMENTS[team.story_fragments_collected]
@@ -1407,7 +1445,13 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
             false,
             true
           )
-        : null
+        : buildRoomClue(
+            expected,
+            team.current_order + stableHash(answerToken(input.answer)),
+            answerToken(input.answer),
+            false,
+            true
+          )
     };
   }
 
@@ -1640,11 +1684,11 @@ export async function useAbility(teamId: string, ability: "shield" | "pulse") {
       trapRoomCode: currentRoom.room_code,
       difficultySeed: Math.max(1, Math.min(5, team.current_order))
     });
-    answer = trapQuestion.answer.trim();
+    answer = primaryAnswer(trapQuestion.answer);
   } else {
     const question = await findTeamQuestion(team.id, team.current_order);
     if (!question) throw new ApiError(409, "No active question");
-    answer = question.cached_answer.trim();
+    answer = primaryAnswer(question.cached_answer);
   }
   const mask = `${answer.slice(0, 1)}${"*".repeat(Math.max(0, answer.length - 1))} (${answer.length} chars)`;
   const updated = await updateTeamWithVersion(team.id, team.version, {

@@ -106,7 +106,7 @@ button {
 .glass-card {
   background: var(--surface);
   border: 1px solid var(--stroke);
-  backdrop-filter: blur(22px);
+  backdrop-filter: blur(16px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
   position: relative;
   z-index: 1;
@@ -201,6 +201,7 @@ button {
 
 .story-flicker {
   animation: storyFlicker 2.8s ease-in-out infinite;
+  will-change: opacity;
 }
 
 .cinematic-sweep {
@@ -215,6 +216,7 @@ button {
   transform: translateX(-120%);
   background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.18), transparent);
   animation: sweep 4.2s linear infinite;
+  will-change: transform;
   pointer-events: none;
 }
 
@@ -229,6 +231,7 @@ button {
   inset: -40%;
   background: conic-gradient(from 90deg, rgba(110, 226, 255, 0.2), rgba(83, 126, 255, 0.1), rgba(110, 226, 255, 0.2));
   animation: spinSlow 14s linear infinite;
+  will-change: transform;
   pointer-events: none;
 }
 
@@ -252,6 +255,7 @@ button {
   background: linear-gradient(100deg, transparent, rgba(120, 231, 255, 0.25), transparent);
   transform: translateX(-120%);
   animation: workflowBeam 4.5s linear infinite;
+  will-change: transform;
   pointer-events: none;
 }
 
@@ -269,6 +273,7 @@ button {
   height: 2px;
   background: linear-gradient(90deg, transparent, rgba(114, 233, 255, 0.75), transparent);
   animation: stepPulse 3.2s ease-in-out infinite;
+  will-change: opacity;
 }
 
 .qr-lane {
@@ -285,6 +290,7 @@ button {
   height: 2px;
   background: linear-gradient(90deg, rgba(122, 246, 255, 0), rgba(122, 246, 255, 0.85), rgba(122, 246, 255, 0));
   animation: qrSweep 2.1s linear infinite;
+  will-change: transform;
 }
 
 .qr-cell {
@@ -295,8 +301,9 @@ button {
   background:
     radial-gradient(circle at 35% 35%, rgba(130, 240, 255, 0.85), rgba(15, 60, 90, 0.55)),
     linear-gradient(135deg, rgba(98, 227, 255, 0.2), rgba(42, 133, 255, 0.25));
-  box-shadow: 0 0 0 rgba(120, 231, 255, 0.3);
+  box-shadow: 0 0 8px rgba(120, 231, 255, 0.25);
   animation: qrPulse 1.8s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .qr-cell-delay-1 {
@@ -348,8 +355,28 @@ button {
   border: 1px solid rgba(140, 238, 255, 0.24);
   background: linear-gradient(130deg, rgba(6, 16, 30, 0.84), rgba(10, 32, 48, 0.75));
   box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(14px);
   overflow: hidden;
+}
+
+.perf-lite .game-stage::before,
+.perf-lite .admin-stage::before,
+.perf-lite .game-scanline-overlay,
+.perf-lite .admin-scanline-overlay,
+.perf-lite .hero-glow::before,
+.perf-lite .cinematic-sweep::after,
+.perf-lite .workflow-beam,
+.perf-lite .qr-lane::after,
+.perf-lite .story-flicker,
+.perf-lite .finish-stage::before,
+.perf-lite .finish-stage::after,
+.perf-lite .finale-fireworks {
+  animation: none !important;
+}
+
+.perf-lite .glass-card,
+.perf-lite .finish-shell {
+  backdrop-filter: none;
 }
 
 .finish-grid-layer {
@@ -519,11 +546,11 @@ button {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 rgba(120, 231, 255, 0.2);
+    opacity: 0.85;
   }
   50% {
-    transform: scale(1.12);
-    box-shadow: 0 0 16px rgba(120, 231, 255, 0.45);
+    transform: scale(1.08);
+    opacity: 1;
   }
 }
 

@@ -42,6 +42,54 @@ const FEATURE_PILLARS = [
   "Hint, shield, and pulse tactical utilities"
 ];
 
+const QR_TYPES = [
+  {
+    name: "Room QR",
+    description: "Main progression scan. Opens the active technical question for your current step."
+  },
+  {
+    name: "Trap QR",
+    description: "Penalty node. Triggers trap challenge unless Shield is armed."
+  },
+  {
+    name: "Power QR",
+    description: "Utility pickup. Grants Shield charge, Pulse charge, Score boost, or Hint credit."
+  },
+  {
+    name: "Rune QR",
+    description: "Secret collectible. Adds bonus points and rune progression."
+  },
+  {
+    name: "Nexus/Amiphoria Key QR",
+    description: "Final key shards required before Fire QR will unlock rapid-fire."
+  },
+  {
+    name: "Fire QR",
+    description: "Rapid gate trigger. Starts the timed rapid-fire finale inside the app."
+  }
+];
+
+const TACTICAL_ABILITIES = [
+  {
+    name: "Shield",
+    description: "Arms protection for the next trap trigger and prevents that trap penalty hit.",
+    usage: "Use before risky scans or when trap pressure is high.",
+    acquire: "Start with 1 charge; gain more from Shield power QR."
+  },
+  {
+    name: "Pulse",
+    description: "Reveals a masked preview of the active answer and consumes one pulse charge.",
+    usage: "Use when your team is blocked and time is bleeding.",
+    acquire: "Start with 1 charge; gain more from Pulse power QR."
+  },
+  {
+    name: "Hint",
+    description: "Provides contextual guidance with time/point tradeoff depending on credits and penalties.",
+    usage: "Use only when decode deadlock persists beyond one attempt.",
+    acquire: "Limited by event rules; extra hint credits come from Hint power QR."
+  }
+];
+
 export function LandingPage() {
   const navigate = useNavigate();
 
@@ -94,6 +142,18 @@ export function LandingPage() {
                 </div>
               ))}
             </div>
+
+            <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-cyan-100">QR Types Explained</p>
+              <div className="mt-3 grid gap-2 text-xs text-slate-100 md:grid-cols-2">
+                {QR_TYPES.map((item) => (
+                  <div key={item.name} className="rounded-xl border border-white/10 bg-black/20 p-2">
+                    <p className="font-semibold text-cyan-100">{item.name}</p>
+                    <p className="mt-1">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </article>
 
           <article className="glass-card story-flicker fade-rise rounded-[2rem] p-7 lg:col-span-2">
@@ -122,6 +182,20 @@ export function LandingPage() {
               <p className="mt-2 text-sm text-slate-100">
                 Teams must confirm the tutorial on login. Mission controls and timer remain locked until this confirmation.
               </p>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-cyan-300/30 bg-cyan-500/10 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-cyan-100">Tactical Utilities (In-Game)</p>
+              <div className="mt-3 grid gap-2 text-xs text-slate-100">
+                {TACTICAL_ABILITIES.map((item) => (
+                  <div key={item.name} className="rounded-xl border border-white/10 bg-black/20 p-2">
+                    <p className="font-semibold text-cyan-100">{item.name}</p>
+                    <p className="mt-1">{item.description}</p>
+                    <p className="mt-1 text-slate-300">Best use: {item.usage}</p>
+                    <p className="mt-1 text-slate-300">How to get: {item.acquire}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </article>
         </section>
