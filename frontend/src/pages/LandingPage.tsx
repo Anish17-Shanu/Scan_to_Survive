@@ -55,7 +55,7 @@ const SCORING_RULES = [
   "Rapid-fire: correct answer starts at +20, wrong answer at -2 (then modifiers apply).",
   "Combo streak increases correct-answer gains up to +50% bonus.",
   "Global pulse can change point gain/loss multiplier during your run.",
-  "Pulse ability use costs -10 points each use.",
+  "Pulse ability use costs -10 points each use and reveals tactical intel (format/route telemetry, not semantic hints).",
   "Shield ability arms trap protection; no direct point deduction.",
   "Hints mainly add time penalty (not direct point subtraction).",
   "Trap events can add penalties and may reduce points depending on trap class.",
@@ -92,21 +92,39 @@ const QR_TYPES = [
 const TACTICAL_ABILITIES = [
   {
     name: "Shield",
-    description: "Arms protection for the next trap trigger and prevents that trap penalty hit.",
-    usage: "Use before risky scans or when trap pressure is high.",
+    description: "Arms protection for the next trap trigger; if a trap QR is hit while armed, the trap challenge is skipped and next route clue is issued.",
+    usage: "Use before risky scans or right after a wrong-answer reroute when trap QR is likely.",
     acquire: "Start with 1 charge; gain more from Shield power QR."
   },
   {
     name: "Pulse",
-    description: "Reveals a masked preview of the active answer and consumes one pulse charge.",
-    usage: "Use when your team is blocked and time is bleeding.",
+    description: "Consumes one pulse charge to reveal tactical intel: answer format profile (question) or route telemetry (clue context).",
+    usage: "Use when you need structure/signal quickly without spending full hint depth.",
     acquire: "Start with 1 charge; gain more from Pulse power QR."
   },
   {
     name: "Hint",
-    description: "Provides contextual guidance with time/point tradeoff depending on credits and penalties.",
+    description: "Provides semantic guidance with 5-stage hint progression from question/clue pools and time/point tradeoff.",
     usage: "Use only when decode deadlock persists beyond one attempt.",
     acquire: "Limited by event rules; extra hint credits come from Hint power QR."
+  }
+];
+
+const ABILITY_LEADERBOARD_IMPACT = [
+  {
+    name: "Hint",
+    effect: "Adds penalty time + consumes hint counter (can hurt tie-breakers), but gives deep semantic guidance.",
+    trend: "time-risk"
+  },
+  {
+    name: "Pulse",
+    effect: "Costs points (-10) but preserves hint counter; gives tactical intel instead of full semantic answer guidance.",
+    trend: "points-risk"
+  },
+  {
+    name: "Shield",
+    effect: "No direct score cost; can skip one trap challenge and avoid trap momentum loss.",
+    trend: "defense"
   }
 ];
 
@@ -263,6 +281,21 @@ export function LandingPage() {
               <div className="mt-2 grid gap-1 text-xs text-slate-100">
                 {SCORING_RULES.map((rule) => (
                   <p key={rule}>{rule}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-fuchsia-300/30 bg-fuchsia-500/10 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-fuchsia-100">Ability Leaderboard After-Effect</p>
+              <div className="mt-3 grid gap-2 text-xs text-slate-100">
+                {ABILITY_LEADERBOARD_IMPACT.map((item) => (
+                  <div key={item.name} className="ability-impact-card rounded-xl border border-white/10 bg-black/20 p-2">
+                    <p className="font-semibold text-cyan-100">{item.name}</p>
+                    <p className="mt-1">{item.effect}</p>
+                    <div className="ability-impact-track mt-2">
+                      <span className={`ability-impact-beam ability-impact-${item.trend}`} />
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

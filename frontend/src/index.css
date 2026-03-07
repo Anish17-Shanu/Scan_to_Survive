@@ -293,6 +293,39 @@ button {
   will-change: transform;
 }
 
+.ability-impact-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.ability-impact-track {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.ability-impact-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  transform: translateX(-70%);
+  animation: impactSlide 2.8s ease-in-out infinite;
+}
+
+.ability-impact-time-risk {
+  background: linear-gradient(90deg, rgba(255, 190, 90, 0.2), rgba(255, 142, 61, 0.9), rgba(255, 190, 90, 0.2));
+}
+
+.ability-impact-points-risk {
+  background: linear-gradient(90deg, rgba(255, 120, 160, 0.2), rgba(255, 70, 120, 0.9), rgba(255, 120, 160, 0.2));
+}
+
+.ability-impact-defense {
+  background: linear-gradient(90deg, rgba(120, 255, 210, 0.2), rgba(70, 220, 180, 0.9), rgba(120, 255, 210, 0.2));
+}
+
 .qr-cell {
   width: 18px;
   height: 18px;
@@ -692,6 +725,21 @@ button {
   50% {
     transform: scale(1.08);
     opacity: 1;
+  }
+}
+
+@keyframes impactSlide {
+  0% {
+    transform: translateX(-70%);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(35%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(115%);
+    opacity: 0.7;
   }
 }
 

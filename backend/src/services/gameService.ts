@@ -136,29 +136,48 @@ function answerFormatGuide(question: string, expected: string): string {
 }
 
 function buildHintText(difficulty: number, question: string, expected: string): string {
-  const variants = answerVariants(expected);
-  const primary = variants[0] ?? "";
-  const shape = primary.includes(" ")
-    ? `${primary.split(/\s+/).filter(Boolean).length} words`
-    : `${primary.length} chars`;
-  const lead = primary[0] ?? "";
-  return `Hint (${difficulty}): focus on the most specific noun in the question. ${answerFormatGuide(question, expected)} Shape: ${shape}. Starts with "${lead}".`;
+  return `Hint (${difficulty}): focus on the most specific noun in the question. ${answerFormatGuide(question, expected)}`;
 }
 
-function composeQuestionHint(input: {
+function normalizeHintText(text?: string | null): string | null {
+  const t = String(text ?? "").trim();
+  return t.length > 0 ? t : null;
+}
+
+function questionHintStagesFromPool(input: {
   difficulty: number;
-  primary?: string | null;
-  secondary?: string | null;
+  hints: Array<string | null | undefined>;
   question: string;
   expected: string;
 }) {
-  const primary = input.primary?.trim();
-  const secondary = input.secondary?.trim();
-  if (primary && secondary) {
-    return `Hint (${input.difficulty}): ${primary} Secondary: ${secondary}`;
+  const pooled = input.hints.map((h) => normalizeHintText(h)).filter((h): h is string => Boolean(h));
+  const stages = pooled.slice(0, 5).map((h, idx) => `Hint (${input.difficulty}) [Stage ${idx + 1}]: ${h}`);
+  while (stages.length < 5) {
+    stages.push(`Hint (${input.difficulty}) [Stage ${stages.length + 1}]: ${buildHintText(input.difficulty, input.question, input.expected)}`);
   }
-  if (primary) return `Hint (${input.difficulty}): ${primary}`;
-  return buildHintText(input.difficulty, input.question, input.expected);
+  return stages.slice(0, 5);
+}
+
+function stageMessage(stages: string[], priorUses: number): string {
+  if (stages.length === 0) return "Hint unavailable";
+  const idx = Math.min(priorUses, stages.length - 1);
+  return stages[idx] ?? stages[stages.length - 1];
+}
+
+function countHintUsesForCheckpoint(
+  rows: Array<{ metadata?: Record<string, unknown> }>,
+  checkpointKey: string
+): number {
+  return rows.filter((row) => String(row.metadata?.checkpoint_key ?? "") === checkpointKey).length;
+}
+
+function pulseAnswerIntel(expected: string): string {
+  const variants = answerVariants(expected);
+  const primary = variants[0] ?? "";
+  const format = answerFormatGuide("", expected).replace(/^Answer format:\s*/i, "");
+  const words = primary.split(/\s+/).filter(Boolean).length;
+  const length = primary.length;
+  return `Pulse intel: format ${format}; variants ${Math.max(1, variants.length)}; profile ${words} word(s), ${length} chars.`;
 }
 
 function abilityGuidance(input: {
@@ -198,34 +217,44 @@ function clueHintPack(input: {
     return [
       `Hint 1: Encoded token is ${input.shifted}.`,
       "Hint 2: Inverse digit shift by -3 (mod 10).",
-      "Hint 3: Preserve digit order."
+      "Hint 3: Preserve digit order.",
+      "Hint 4: Apply transform per digit, not on full number as integer.",
+      "Hint 5: Final decoded token is the exact room number."
     ];
   }
   if (input.clueStyle === "binary") {
     return [
       "Hint 1: Split by spaces into blocks.",
       "Hint 2: Each block is 6-bit ASCII for one digit.",
-      "Hint 3: Convert and concatenate all digits."
+      "Hint 3: Convert and concatenate all digits.",
+      "Hint 4: Do not parse as one big binary number.",
+      "Hint 5: Converted characters should all be numeric digits."
     ];
   }
   if (input.clueStyle === "logic") {
     return [
       `Hint 1: Use room + floor = ${input.plusFloor}.`,
       `Hint 2: Subtract floor (${input.floor}) from total.`,
-      "Hint 3: Result is your next room token."
+      "Hint 3: Result is your next room token.",
+      "Hint 4: Keep the result in room-number format.",
+      "Hint 5: Cross-check against building floor map before moving."
     ];
   }
   if (input.clueStyle === "code-snippet") {
     return [
       `Hint 1: token is reversed (${input.reversed}).`,
       "Hint 2: Apply reverse operation once.",
-      "Hint 3: Final token maps to next room number."
+      "Hint 3: Final token maps to next room number.",
+      "Hint 4: Ignore programming syntax; use only transformation idea.",
+      "Hint 5: Reverse exactly once, then stop."
     ];
   }
   return [
     "Hint 1: Use first/last digit anchors.",
     `Hint 2: Mirror token is ${input.reversed}.`,
-    "Hint 3: Rebuild full token from the mirrored pattern."
+    "Hint 3: Rebuild full token from the mirrored pattern.",
+    "Hint 4: Candidate token should match room-number shape.",
+    "Hint 5: Validate with teammate before scan."
   ];
 }
 
@@ -294,6 +323,9 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
     cached_answer: string;
     cached_hint_primary: string | null;
     cached_hint_secondary: string | null;
+    cached_hint_tertiary: string | null;
+    cached_hint_quaternary: string | null;
+    cached_hint_quinary: string | null;
     difficulty_level: number;
   }> = [];
 
@@ -311,6 +343,9 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
       cached_answer: picked.correct_answer,
       cached_hint_primary: picked.hint_primary ?? null,
       cached_hint_secondary: picked.hint_secondary ?? null,
+      cached_hint_tertiary: picked.hint_tertiary ?? null,
+      cached_hint_quaternary: picked.hint_quaternary ?? null,
+      cached_hint_quinary: picked.hint_quinary ?? null,
       difficulty_level: picked.difficulty_level
     });
   }
@@ -330,6 +365,9 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
       cached_answer: picked.correct_answer,
       cached_hint_primary: picked.hint_primary ?? null,
       cached_hint_secondary: picked.hint_secondary ?? null,
+      cached_hint_tertiary: picked.hint_tertiary ?? null,
+      cached_hint_quaternary: picked.hint_quaternary ?? null,
+      cached_hint_quinary: picked.hint_quinary ?? null,
       difficulty_level: 5
     });
   }
@@ -574,6 +612,9 @@ async function recacheRapidQuestionsByCategory(input: {
     cached_answer: string;
     cached_hint_primary: string | null;
     cached_hint_secondary: string | null;
+    cached_hint_tertiary: string | null;
+    cached_hint_quaternary: string | null;
+    cached_hint_quinary: string | null;
     difficulty_level: number;
   }> = [];
   const pool = await listQuestionsByDifficulty(input.eventId, 5);
@@ -591,6 +632,9 @@ async function recacheRapidQuestionsByCategory(input: {
       cached_answer: picked.correct_answer,
       cached_hint_primary: picked.hint_primary ?? null,
       cached_hint_secondary: picked.hint_secondary ?? null,
+      cached_hint_tertiary: picked.hint_tertiary ?? null,
+      cached_hint_quaternary: picked.hint_quaternary ?? null,
+      cached_hint_quinary: picked.hint_quinary ?? null,
       difficulty_level: 5
     });
   }
@@ -687,6 +731,24 @@ async function getHintCredits(eventId: string, teamId: string): Promise<number> 
   return Math.max(0, grants.length - uses.length);
 }
 
+async function enforceSingleSubmission(input: {
+  eventId: string;
+  teamId: string;
+  checkpointCode: string;
+}) {
+  const actionType = "question_submission_lock";
+  const alreadySubmitted = await hasTeamClaimedCode(input.eventId, input.teamId, actionType, input.checkpointCode);
+  if (alreadySubmitted) {
+    throw new ApiError(409, "Answer already submitted for this question. Scan/trigger the next challenge first.");
+  }
+  await createLog({
+    event_config_id: input.eventId,
+    team_id: input.teamId,
+    action_type: actionType,
+    metadata: { code: input.checkpointCode }
+  });
+}
+
 function stableHash(input: string): number {
   let hash = 0;
   for (let i = 0; i < input.length; i += 1) {
@@ -726,7 +788,10 @@ async function buildTrapQuestion(input: {
     question_text: `[Trap Challenge] ${picked.question_text}`,
     answer: picked.correct_answer,
     hint_primary: picked.hint_primary,
-    hint_secondary: picked.hint_secondary
+    hint_secondary: picked.hint_secondary,
+    hint_tertiary: picked.hint_tertiary,
+    hint_quaternary: picked.hint_quaternary,
+    hint_quinary: picked.hint_quinary
   };
 }
 
@@ -1227,12 +1292,22 @@ export async function scanRoom(teamId: string, roomCode: string) {
         action_type: "trap_blocked",
         metadata: { room_code: room.room_code }
       });
+      const expectedAfterShield = await findExpectedRoom(event.id, team.assigned_path, team.current_order);
       return {
         type: "trap" as const,
-        message: "Trap detected but blocked by Shield",
+        message: "Trap blocked by Shield. Trap challenge skipped; decode the next room clue.",
         team: shielded,
         active_pulse: pulse,
-        latest_broadcast: broadcast
+        latest_broadcast: broadcast,
+        next_room_clue: expectedAfterShield
+          ? buildRoomClue(
+              expectedAfterShield,
+              shielded.current_order + shielded.points + stableHash(answerToken(shielded.team_name)),
+              answerToken(shielded.team_name),
+              true,
+              true
+            )
+          : fallbackClue("Shield skip completed. Proceed to event desk for route sync.")
       };
     }
     const trapClass = trapClassFor({ teamId: team.id, trapRoomCode: room.room_code, order: team.current_order });
@@ -1367,6 +1442,11 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       orderNumber: team.current_order
     });
     if (!rapidQ) throw new ApiError(500, "Rapid-fire question missing");
+    await enforceSingleSubmission({
+      eventId: event.id,
+      teamId: team.id,
+      checkpointCode: `RAPID:${team.current_order}`
+    });
     const correct = isAnswerMatch(input.answer, rapidQ.cached_answer);
     const nextCombo = correct ? team.combo_streak + 1 : 0;
     const mult = 1 + Math.min(0.5, team.combo_streak * 0.1);
@@ -1438,6 +1518,11 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
     if (currentRoom.room_code !== scannedCode) {
       throw new ApiError(409, "Trap challenge active. Submit using the currently active trap room QR.");
     }
+    await enforceSingleSubmission({
+      eventId: event.id,
+      teamId: team.id,
+      checkpointCode: `TRAP:${team.current_order}:${currentRoom.room_code}`
+    });
     const trapQuestion = await buildTrapQuestion({
       eventId: event.id,
       teamId: team.id,
@@ -1522,6 +1607,11 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
   if (team.current_room_id !== expected.id) {
     throw new ApiError(409, "No active challenge lock. Scan the expected room QR first.");
   }
+  await enforceSingleSubmission({
+    eventId: event.id,
+    teamId: team.id,
+    checkpointCode: `MAIN:${team.current_order}:${expected.room_code}`
+  });
 
   const question = await ensureQuestionAvailable({
     teamId: team.id,
@@ -1770,29 +1860,46 @@ export async function useHint(teamId: string) {
     });
   }
 
-  const [paths, rooms] = await Promise.all([listPathsByEvent(event.id), listRoomsByEvent(event.id)]);
+  const [paths, rooms, hintLogs] = await Promise.all([
+    listPathsByEvent(event.id),
+    listRoomsByEvent(event.id),
+    listTeamActionLogs(event.id, team.id, LOG_ACTIONS.HINT_USED, 300)
+  ]);
   const currentRoom = team.current_room_id ? rooms.find((r) => r.id === team.current_room_id) : null;
   let hint = "Hint unavailable";
+  let checkpointKey = `checkpoint:${team.current_order}:generic`;
+  let hintStage = 1;
   if (currentRoom?.is_trap) {
+    checkpointKey = `trap:${team.current_order}:${currentRoom.room_code}`;
+    const priorUses = countHintUsesForCheckpoint(hintLogs as Array<{ metadata?: Record<string, unknown> }>, checkpointKey);
     const trapQuestion = await buildTrapQuestion({
       eventId: team.event_config_id,
       teamId: team.id,
       trapRoomCode: currentRoom.room_code,
       difficultySeed: Math.max(1, Math.min(5, team.current_order))
     });
-    hint = `${composeQuestionHint({
+    const stages = questionHintStagesFromPool({
       difficulty: trapQuestion.difficulty_level,
-      primary: trapQuestion.hint_primary,
-      secondary: trapQuestion.hint_secondary,
+      hints: [
+        trapQuestion.hint_primary,
+        trapQuestion.hint_secondary,
+        trapQuestion.hint_tertiary,
+        trapQuestion.hint_quaternary,
+        trapQuestion.hint_quinary
+      ],
       question: trapQuestion.question_text,
       expected: trapQuestion.answer
-    })} ${abilityGuidance({
+    });
+    hintStage = Math.min(priorUses + 1, stages.length);
+    hint = `${stageMessage(stages, priorUses)} ${abilityGuidance({
       shieldActive: team.shield_active,
       shieldCharges: team.shield_charges,
       pulseCharges: team.pulse_charges,
       hintCredits
     })}`;
   } else if (currentRoom) {
+    checkpointKey = `question:${team.current_order}:${currentRoom.room_code}`;
+    const priorUses = countHintUsesForCheckpoint(hintLogs as Array<{ metadata?: Record<string, unknown> }>, checkpointKey);
     const mainSteps = computeMainSteps(rooms, paths.length);
     const question = await ensureQuestionAvailable({
       teamId: team.id,
@@ -1801,22 +1908,47 @@ export async function useHint(teamId: string) {
       orderNumber: team.current_order
     });
     hint = question
-      ? `${composeQuestionHint({
-          difficulty: question.difficulty_level,
-          primary: question.cached_hint_primary,
-          secondary: question.cached_hint_secondary,
-          question: question.cached_question,
-          expected: question.cached_answer
-        })} ${abilityGuidance({
+      ? `${stageMessage(
+          questionHintStagesFromPool({
+            difficulty: question.difficulty_level,
+            hints: [
+              question.cached_hint_primary,
+              question.cached_hint_secondary,
+              question.cached_hint_tertiary,
+              question.cached_hint_quaternary,
+              question.cached_hint_quinary
+            ],
+            question: question.cached_question,
+            expected: question.cached_answer
+          }),
+          priorUses
+        )} ${abilityGuidance({
           shieldActive: team.shield_active,
           shieldCharges: team.shield_charges,
           pulseCharges: team.pulse_charges,
           hintCredits
         })}`
       : "Hint unavailable";
+    if (question) {
+      const stageLen = questionHintStagesFromPool({
+        difficulty: question.difficulty_level,
+        hints: [
+          question.cached_hint_primary,
+          question.cached_hint_secondary,
+          question.cached_hint_tertiary,
+          question.cached_hint_quaternary,
+          question.cached_hint_quinary
+        ],
+        question: question.cached_question,
+        expected: question.cached_answer
+      }).length;
+      hintStage = Math.min(priorUses + 1, stageLen);
+    }
   } else {
     const expected = team.assigned_path ? await findExpectedRoom(event.id, team.assigned_path, team.current_order) : null;
     if (expected) {
+      checkpointKey = `route:${team.current_order}:${expected.room_code}`;
+      const priorUses = countHintUsesForCheckpoint(hintLogs as Array<{ metadata?: Record<string, unknown> }>, checkpointKey);
       const routeHint = buildRoomClue(
         expected,
         team.current_order + team.points + stableHash(answerToken(team.team_name)),
@@ -1824,8 +1956,11 @@ export async function useHint(teamId: string) {
         true,
         true
       );
-      const pack = Array.isArray(routeHint.clue_hints) ? routeHint.clue_hints.join(" ") : routeHint.decode_hint;
-      hint = `Route hint (${routeHint.clue_style}): ${pack} ${abilityGuidance({
+      const routeStages = Array.isArray(routeHint.clue_hints) && routeHint.clue_hints.length > 0
+        ? routeHint.clue_hints
+        : [routeHint.decode_hint];
+      hintStage = Math.min(priorUses + 1, routeStages.length);
+      hint = `Route hint (${routeHint.clue_style}) [Stage ${hintStage}]: ${stageMessage(routeStages, priorUses)} ${abilityGuidance({
         shieldActive: team.shield_active,
         shieldCharges: team.shield_charges,
         pulseCharges: team.pulse_charges,
@@ -1840,6 +1975,16 @@ export async function useHint(teamId: string) {
       })}`;
     }
   }
+  await createLog({
+    event_config_id: event.id,
+    team_id: team.id,
+    action_type: LOG_ACTIONS.HINT_USED,
+    metadata: {
+      order: team.current_order,
+      checkpoint_key: checkpointKey,
+      hint_stage: hintStage
+    }
+  });
   return {
     team: updated,
     hint_credits_remaining: Math.max(0, hintCredits - 1),
@@ -1875,32 +2020,72 @@ export async function useAbility(teamId: string, ability: "shield" | "pulse") {
   if (team.pulse_charges <= 0) {
     throw new ApiError(409, "No pulse charges left. Scan a Pulse power QR to replenish.");
   }
-  const rooms = await listRoomsByEvent(event.id);
+  const [rooms, paths] = await Promise.all([
+    listRoomsByEvent(event.id),
+    listPathsByEvent(event.id)
+  ]);
   const currentRoom = team.current_room_id ? rooms.find((r) => r.id === team.current_room_id) : null;
-  let answer = "";
+  let pulseMessage = "Pulse sync complete.";
+  let pulseContext = "generic";
+  let nextRoomClue: ReturnType<typeof buildRoomClue> | ReturnType<typeof fallbackClue> | null = null;
   if (currentRoom?.is_trap) {
+    pulseContext = "trap_question";
     const trapQuestion = await buildTrapQuestion({
       eventId: team.event_config_id,
       teamId: team.id,
       trapRoomCode: currentRoom.room_code,
       difficultySeed: Math.max(1, Math.min(5, team.current_order))
     });
-    answer = primaryAnswer(trapQuestion.answer);
-  } else {
-    const question = await findTeamQuestion(team.id, team.current_order);
+    pulseMessage = pulseAnswerIntel(trapQuestion.answer);
+  } else if (currentRoom) {
+    pulseContext = "main_question";
+    const mainSteps = computeMainSteps(rooms, paths.length);
+    const question = await ensureQuestionAvailable({
+      teamId: team.id,
+      eventId: team.event_config_id,
+      mainSteps,
+      orderNumber: team.current_order
+    });
     if (!question) throw new ApiError(409, "No active question");
-    answer = primaryAnswer(question.cached_answer);
+    pulseMessage = pulseAnswerIntel(question.cached_answer);
+  } else {
+    const expected = team.assigned_path ? await findExpectedRoom(event.id, team.assigned_path, team.current_order) : null;
+    if (expected) {
+      pulseContext = "route_clue";
+      const routeHint = buildRoomClue(
+        expected,
+        team.current_order + team.points + stableHash(answerToken(team.team_name)),
+        answerToken(team.team_name),
+        true,
+        true
+      );
+      const firstClue = Array.isArray(routeHint.clue_hints) && routeHint.clue_hints.length > 0 ? routeHint.clue_hints[0] : routeHint.decode_hint;
+      pulseMessage = `Pulse route intel: target floor ${expected.floor ?? "?"}, clue style ${routeHint.clue_style}. ${firstClue}`;
+      nextRoomClue = routeHint;
+    } else {
+      pulseMessage = "Pulse route hint unavailable. Confirm current checkpoint with event desk.";
+      nextRoomClue = fallbackClue("Route currently unavailable. Check with event desk.");
+    }
   }
-  const mask = `${answer.slice(0, 1)}${"*".repeat(Math.max(0, answer.length - 1))} (${answer.length} chars)`;
   const updated = await updateTeamWithVersion(team.id, team.version, {
     pulse_charges: team.pulse_charges - 1,
     points: Math.max(0, team.points - 10)
   });
   if (!updated) throw new ApiError(409, "Concurrent ability update");
+  await createLog({
+    event_config_id: event.id,
+    team_id: team.id,
+    action_type: "ability_pulse_used",
+    metadata: {
+      context: pulseContext,
+      order: team.current_order
+    }
+  });
   return {
     team: updated,
     ability,
-    message: `Pulse reveal: ${mask}. Refill by scanning a Pulse power QR.`
+    message: `${pulseMessage} Refill by scanning a Pulse power QR.`,
+    next_room_clue: nextRoomClue
   };
 }
 

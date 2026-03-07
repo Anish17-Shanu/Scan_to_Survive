@@ -78,6 +78,9 @@ export type QuestionRow = {
   correct_answer: string;
   hint_primary: string;
   hint_secondary: string;
+  hint_tertiary: string;
+  hint_quaternary: string;
+  hint_quinary: string;
   active: boolean;
 };
 
@@ -91,6 +94,9 @@ export type TeamQuestionRow = {
   cached_answer: string;
   cached_hint_primary: string | null;
   cached_hint_secondary: string | null;
+  cached_hint_tertiary: string | null;
+  cached_hint_quaternary: string | null;
+  cached_hint_quinary: string | null;
   difficulty_level: number;
   created_at: string;
 };

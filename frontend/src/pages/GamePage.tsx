@@ -153,6 +153,33 @@ type StartResponse = {
   };
 };
 
+type CachedGameState = {
+  team: TeamState | null;
+  question: string | null;
+  difficulty: number | null;
+  roomCode: string;
+  feedback: string | null;
+  hintMessage: string | null;
+  nextTarget: NextTarget;
+  finalKeyState: FinalKeyState;
+  finalKeyBrief: FinalKeyBrief;
+  activePulse: PulseState | null;
+  runesCollected: number;
+  hintCredits: number;
+  storyMission: StoryMission;
+  storyChapter: string | null;
+  rapidCategory: RapidCategoryState;
+  rapidQuestion: RapidQuestion | null;
+  rapidRemaining: number;
+  gameplayMeta: GameplayMeta | null;
+  gameDuration: number;
+  rapidDuration: number;
+  routeBriefing: StartResponse["route_briefing"] | null;
+  activityFeed: string[];
+  fragments: string[];
+  savedAt: number;
+};
+
 function parseApiError(err: unknown): { status: number; message: string } {
   const status =
     typeof err === "object" &&
@@ -265,6 +292,45 @@ export function GamePage() {
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
   const rapidExpirySyncRef = useRef(false);
   const [transmissionIndex, setTransmissionIndex] = useState(0);
+  const cacheKey = useMemo(() => {
+    const teamName = getTeamName()?.trim().toLowerCase() || "anonymous";
+    return `scan_live_state_v2:${teamName}`;
+  }, []);
+
+  const restoreCachedState = useCallback(() => {
+    const raw = localStorage.getItem(cacheKey);
+    if (!raw) return false;
+    try {
+      const parsed = JSON.parse(raw) as CachedGameState;
+      if (!parsed || typeof parsed !== "object") return false;
+      setTeam(parsed.team ?? null);
+      setQuestion(parsed.question ?? null);
+      setDifficulty(parsed.difficulty ?? null);
+      setRoomCode(parsed.roomCode ?? "");
+      setFeedback(parsed.feedback ?? null);
+      setHintMessage(parsed.hintMessage ?? null);
+      setNextTarget(parsed.nextTarget ?? null);
+      setFinalKeyState(parsed.finalKeyState ?? null);
+      setFinalKeyBrief(parsed.finalKeyBrief ?? null);
+      setActivePulse(parsed.activePulse ?? null);
+      setRunesCollected(parsed.runesCollected ?? 0);
+      setHintCredits(parsed.hintCredits ?? 0);
+      setStoryMission(parsed.storyMission ?? null);
+      setStoryChapter(parsed.storyChapter ?? null);
+      setRapidCategory(parsed.rapidCategory ?? null);
+      setRapidQuestion(parsed.rapidQuestion ?? null);
+      setRapidRemaining(parsed.rapidRemaining ?? 300);
+      setGameplayMeta(parsed.gameplayMeta ?? null);
+      setGameDuration(parsed.gameDuration ?? 5400);
+      setRapidDuration(parsed.rapidDuration ?? 300);
+      setRouteBriefing(parsed.routeBriefing ?? null);
+      setActivityFeed(Array.isArray(parsed.activityFeed) ? parsed.activityFeed : []);
+      setFragments(Array.isArray(parsed.fragments) ? parsed.fragments : []);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [cacheKey]);
 
   useBlockBackNavigation({
     onBlocked: () => {
@@ -329,6 +395,7 @@ export function GamePage() {
   }, [navigate]);
 
   useEffect(() => {
+    restoreCachedState();
     if (localStorage.getItem("scan_tutorial_v3_done") !== "1") {
       setTutorialOpen(true);
       setTutorialStep(1);
@@ -337,7 +404,62 @@ export function GamePage() {
       return;
     }
     void bootstrapSession();
-  }, [bootstrapSession]);
+  }, [bootstrapSession, restoreCachedState]);
+
+  useEffect(() => {
+    const payload: CachedGameState = {
+      team,
+      question,
+      difficulty,
+      roomCode,
+      feedback,
+      hintMessage,
+      nextTarget,
+      finalKeyState,
+      finalKeyBrief,
+      activePulse,
+      runesCollected,
+      hintCredits,
+      storyMission,
+      storyChapter,
+      rapidCategory,
+      rapidQuestion,
+      rapidRemaining,
+      gameplayMeta,
+      gameDuration,
+      rapidDuration,
+      routeBriefing,
+      activityFeed,
+      fragments,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(payload));
+  }, [
+    cacheKey,
+    team,
+    question,
+    difficulty,
+    roomCode,
+    feedback,
+    hintMessage,
+    nextTarget,
+    finalKeyState,
+    finalKeyBrief,
+    activePulse,
+    runesCollected,
+    hintCredits,
+    storyMission,
+    storyChapter,
+    rapidCategory,
+    rapidQuestion,
+    rapidRemaining,
+    gameplayMeta,
+    gameDuration,
+    rapidDuration,
+    routeBriefing,
+    activityFeed,
+    fragments
+  ]);
 
   useEffect(() => {
     if (!tutorialOpen) return;
@@ -794,6 +916,12 @@ export function GamePage() {
       const response = await api.post("/game/ability", { ability });
       setTeam(response.data.team);
       setFeedback(response.data.message);
+      if (response.data.next_room_clue) {
+        setNextTarget(response.data.next_room_clue);
+      }
+      if (ability === "pulse") {
+        setHintMessage(response.data.message);
+      }
       setActivityFeed((prev) => [`Ability used: ${ability}`, ...prev].slice(0, 10));
       if (ability === "pulse") audioManager.play("hint_used");
     } catch (err: unknown) {
@@ -1154,6 +1282,7 @@ export function GamePage() {
         <button
           className="ghost-btn"
           onClick={() => {
+            localStorage.removeItem(cacheKey);
             clearAuth();
             navigate("/login");
           }}
@@ -1190,9 +1319,10 @@ export function GamePage() {
               {Array.isArray(nextTarget.clue_hints) && nextTarget.clue_hints.length > 0 && (
                 <div className="mt-2 rounded-lg border border-white/10 bg-black/20 p-2">
                   <p className="text-[10px] uppercase tracking-[0.15em] text-cyan-200">Clue Hints</p>
-                  {nextTarget.clue_hints.map((item, idx) => (
-                    <p key={`${item}-${idx}`} className="mt-1 text-[11px] text-slate-300">{item}</p>
-                  ))}
+                  <p className="mt-1 text-[11px] text-slate-300">{nextTarget.clue_hints[0]}</p>
+                  {nextTarget.clue_hints.length > 1 && (
+                    <p className="mt-1 text-[10px] text-slate-400">Use Hint action to unlock deeper clue stages.</p>
+                  )}
                 </div>
               )}
               {nextTarget.unlock_token && <p className="mt-1 text-[10px] text-slate-500">Unlock token: {nextTarget.unlock_token}</p>}

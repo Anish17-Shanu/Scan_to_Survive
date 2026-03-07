@@ -6,6 +6,9 @@ type QuestionSeed = {
   correct_answer: string;
   hint_primary: string;
   hint_secondary: string;
+  hint_tertiary: string;
+  hint_quaternary: string;
+  hint_quinary: string;
   active: boolean;
 };
 
@@ -286,98 +289,125 @@ function answerFormatHint(answer: string): string {
   return "single word or token";
 }
 
-function answerFingerprint(answer: string): string {
-  const variants = answer
-    .split("|")
-    .map((v) => v.trim().toLowerCase())
-    .filter(Boolean);
-  const summarize = (token: string) => {
-    const words = token.split(/\s+/).filter(Boolean);
-    if (words.length > 1) {
-      const initials = words.map((w) => w[0]).join("");
-      return `${words.length} words, initials "${initials}", total chars ${token.length}`;
-    }
-    return `starts with "${token[0] ?? ""}", length ${token.length}`;
-  };
-  if (variants.length <= 1) return summarize(variants[0] ?? "");
-  return variants.slice(0, 2).map((v, i) => `v${i + 1}: ${summarize(v)}`).join(" | ");
-}
-
-function curatedQuestionHints(entry: BankEntry): { primary: string; secondary: string } {
+function curatedQuestionHints(entry: BankEntry): {
+  primary: string;
+  secondary: string;
+  tertiary: string;
+  quaternary: string;
+  quinary: string;
+} {
   const q = entry.question.toLowerCase();
   const a = entry.answer.toLowerCase();
   const primaryAnswer = a.split("|")[0]?.trim() ?? a.trim();
-  const fingerprint = answerFingerprint(entry.answer);
+  const variants = a.split("|").map((v) => v.trim()).filter(Boolean);
+  const variantHint = variants.length > 1 ? `Accepted variants: ${variants.join(" / ")}.` : "Use one exact standard token.";
+  const formatHint = `Expected format: ${answerFormatHint(entry.answer)}.`;
 
   if (q.includes("stands for")) {
     return {
-      primary: `Expand the acronym completely. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Write the full phrase in lowercase words, not short form."
+      primary: "Expand the acronym completely.",
+      secondary: "Write the full phrase in lowercase words, not short form.",
+      tertiary: "Use all words; avoid abbreviations.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (q.includes("status code") || q.includes("how many") || /^\d+/.test(primaryAnswer)) {
     return {
-      primary: `Numeric response required. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Use digits only; no words, no symbols unless explicitly asked."
+      primary: "Numeric response required.",
+      secondary: "Use digits only; no words, no symbols unless explicitly asked.",
+      tertiary: "Do not include units or punctuation.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (q.includes("true/false") || q.includes("yes or no")) {
     return {
-      primary: `Boolean-style single token expected. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Use exactly one word: true/false or yes/no as requested."
+      primary: "Boolean-style single token expected.",
+      secondary: "Use exactly one word: true/false or yes/no as requested.",
+      tertiary: "No explanation text after the token.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (q.includes("without < >")) {
     return {
-      primary: `HTML/token only expected. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Do not include angle brackets, quotes, or explanation."
+      primary: "HTML/token only expected.",
+      secondary: "Do not include angle brackets, quotes, or explanation.",
+      tertiary: "Submit only the tag/selector token.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (q.includes("output of") || q.startsWith("evaluate")) {
     return {
-      primary: `Evaluate exactly; result shape is fixed. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Return only the computed final value/token."
+      primary: "Evaluate exactly; result shape is fixed.",
+      secondary: "Return only the computed final value/token.",
+      tertiary: "No intermediate steps in answer field.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (primaryAnswer.startsWith("git ")) {
     return {
-      primary: `Full git command expected. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Include git subcommand and required flags/args."
+      primary: "Full git command expected.",
+      secondary: "Include git subcommand and required flags/args.",
+      tertiary: "Spacing and flag order should be command-valid.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (primaryAnswer.includes("|")) {
     return {
-      primary: `Multiple accepted variants exist. Fingerprint: ${fingerprint}.`,
-      secondary: "Any one standard variant is valid."
+      primary: "Multiple accepted variants exist.",
+      secondary: "Any one standard variant is valid.",
+      tertiary: "Use one full variant only.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (entry.category === "database" && q.includes("normal form")) {
     return {
-      primary: `Normalization term expected. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Short form (e.g., 2NF/3NF) or full name is accepted."
+      primary: "Normalization term expected.",
+      secondary: "Short form (e.g., 2NF/3NF) or full name is accepted.",
+      tertiary: "Do not write extra theory text.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (entry.category === "network" && (q.includes("protocol") || q.includes("port"))) {
     return {
-      primary: `Networking token expected. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Use exact protocol/port token, lowercase unless numeric."
+      primary: "Networking token expected.",
+      secondary: "Use exact protocol/port token, lowercase unless numeric.",
+      tertiary: "No sentence form; token only.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (entry.category === "security") {
     return {
-      primary: `Canonical security term expected. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Use the standard term, not a long explanation sentence."
+      primary: "Canonical security term expected.",
+      secondary: "Use the standard term, not a long explanation sentence.",
+      tertiary: "Prefer textbook/interview terminology.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   if (entry.category === "python" || entry.category === "java" || entry.category === "c" || entry.category === "js") {
     return {
-      primary: `Language token/keyword/API expected. Answer fingerprint: ${fingerprint}.`,
-      secondary: "Exact spelling and symbols matter."
+      primary: "Language token/keyword/API expected.",
+      secondary: "Exact spelling and symbols matter.",
+      tertiary: "Use lowercase where language convention applies.",
+      quaternary: formatHint,
+      quinary: variantHint
     };
   }
   return {
-    primary: `Target concept is in ${entry.category}. Answer fingerprint: ${fingerprint}.`,
-    secondary: "Return the shortest exact technical term matching the concept."
+    primary: `Target concept is in ${entry.category}.`,
+    secondary: "Return the shortest exact technical term matching the concept.",
+    tertiary: "Avoid descriptive sentences.",
+    quaternary: formatHint,
+    quinary: variantHint
   };
 }
 
@@ -394,6 +424,9 @@ function push(rows: QuestionSeed[], eventId: string, difficulty: number, entry: 
     correct_answer: entry.answer.trim().toLowerCase(),
     hint_primary: hints.primary,
     hint_secondary: hints.secondary,
+    hint_tertiary: hints.tertiary,
+    hint_quaternary: hints.quaternary,
+    hint_quinary: hints.quinary,
     active: true
   });
 }
