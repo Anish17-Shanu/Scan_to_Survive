@@ -1549,10 +1549,77 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
     if (currentRoom.room_code !== scannedCode) {
       throw new ApiError(409, "Trap challenge active. Submit using the currently active trap room QR.");
     }
+    const trapCheckpointCode = `TRAP:${team.current_order}:${currentRoom.room_code}`;
+    const trapAlreadySubmitted = await hasTeamClaimedCode(event.id, team.id, "question_submission_lock", trapCheckpointCode);
+    if (trapAlreadySubmitted) {
+      const [trapCorrectLogs, trapWrongLogs] = await Promise.all([
+        listTeamActionLogs(event.id, team.id, "trap_answer_correct", 10),
+        listTeamActionLogs(event.id, team.id, "trap_answer_wrong", 10)
+      ]);
+      const latestCorrect = trapCorrectLogs
+        .filter((row) => String(row.metadata?.trap_room ?? "") === currentRoom.room_number)
+        .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+      const latestWrong = trapWrongLogs
+        .filter((row) => String(row.metadata?.trap_room ?? "") === currentRoom.room_number)
+        .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+      const latestType =
+        latestCorrect && latestWrong
+          ? String(latestCorrect.timestamp) >= String(latestWrong.timestamp)
+            ? "correct"
+            : "wrong"
+          : latestCorrect
+            ? "correct"
+            : latestWrong
+              ? "wrong"
+              : null;
+
+      if (latestType === "correct") {
+        return {
+          completed: false,
+          message: "Submission already recorded. Decode the clue packet for your next room.",
+          team,
+          active_pulse: pulse,
+          latest_broadcast: broadcast,
+          next_room_clue: buildRoomClue(
+            expected,
+            team.current_order + team.story_fragments_collected + stableHash(answerToken(team.team_name)),
+            answerToken(team.team_name),
+            false,
+            assistMode
+          )
+        };
+      }
+      if (latestType === "wrong") {
+        const redirectRoomNumber = String(latestWrong?.metadata?.redirect_room ?? "").trim();
+        const redirectTrap = rooms.find((r) => r.is_trap && r.room_number === redirectRoomNumber);
+        return {
+          completed: false,
+          message: "Submission already recorded. Decode the reroute clue packet.",
+          team,
+          active_pulse: pulse,
+          latest_broadcast: broadcast,
+          next_room_clue: redirectTrap
+            ? buildRoomClue(
+                redirectTrap,
+                team.current_order + team.trap_hits + stableHash(answerToken(team.team_name)),
+                answerToken(team.team_name),
+                false,
+                true
+              )
+            : buildRoomClue(
+                expected,
+                team.current_order + team.story_fragments_collected + stableHash(answerToken(team.team_name)),
+                answerToken(team.team_name),
+                false,
+                true
+              )
+        };
+      }
+    }
     await enforceSingleSubmission({
       eventId: event.id,
       teamId: team.id,
-      checkpointCode: `TRAP:${team.current_order}:${currentRoom.room_code}`
+      checkpointCode: trapCheckpointCode
     });
     const trapQuestion = await buildTrapQuestion({
       eventId: event.id,
@@ -1638,10 +1705,63 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
   if (team.current_room_id !== expected.id) {
     throw new ApiError(409, "No active challenge lock. Scan the expected room QR first.");
   }
+  const mainCheckpointCode = `MAIN:${team.current_order}:${expected.room_code}`;
+  const mainAlreadySubmitted = await hasTeamClaimedCode(event.id, team.id, "question_submission_lock", mainCheckpointCode);
+  if (mainAlreadySubmitted) {
+    const wrongLogs = await listTeamActionLogs(event.id, team.id, LOG_ACTIONS.ANSWER_WRONG, 20);
+    const latestWrongThisOrder = wrongLogs
+      .filter((row) => Number(row.metadata?.order) === team.current_order)
+      .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+    const fallbackAdvance = String(latestWrongThisOrder?.metadata?.fallback ?? "") === "no_trap_nodes_advance";
+    const redirectRoomNumber = String(latestWrongThisOrder?.metadata?.redirect_room ?? "").trim();
+    const redirectTrap = rooms.find((r) => r.is_trap && r.room_number === redirectRoomNumber);
+
+    if (latestWrongThisOrder && !fallbackAdvance) {
+      const safeRedirectTrap =
+        redirectTrap && redirectTrap.room_number !== expected.room_number
+          ? redirectTrap
+          : rooms.find((r) => r.is_trap && r.room_number !== expected.room_number) ?? null;
+      return {
+        completed: false,
+        message: "Submission already recorded. Decode the reroute clue packet.",
+        team,
+        active_pulse: pulse,
+        latest_broadcast: broadcast,
+        next_room_clue: safeRedirectTrap
+          ? buildRoomClue(
+              safeRedirectTrap,
+              team.current_order + team.trap_hits + stableHash(answerToken(team.team_name)),
+              answerToken(team.team_name),
+              false,
+              true
+            )
+          : fallbackClue("Reroute clue unavailable. Proceed to event desk for checkpoint sync.")
+      };
+    }
+
+    const nextOrderForClue = latestWrongThisOrder && fallbackAdvance ? team.current_order + 1 : team.current_order + 1;
+    const nextExpected = await findExpectedRoom(event.id, team.assigned_path as string, nextOrderForClue);
+    return {
+      completed: false,
+      message: "Submission already recorded. Decode the clue packet for your next room.",
+      team,
+      active_pulse: pulse,
+      latest_broadcast: broadcast,
+      next_room_clue: nextExpected
+        ? buildRoomClue(
+            nextExpected,
+            nextOrderForClue + team.points + stableHash(answerToken(team.team_name)),
+            answerToken(team.team_name),
+            false,
+            assistMode
+          )
+        : fallbackClue("Next room clue unavailable. Proceed to event desk for route sync.")
+    };
+  }
   await enforceSingleSubmission({
     eventId: event.id,
     teamId: team.id,
-    checkpointCode: `MAIN:${team.current_order}:${expected.room_code}`
+    checkpointCode: mainCheckpointCode
   });
 
   const question = await ensureQuestionAvailable({
