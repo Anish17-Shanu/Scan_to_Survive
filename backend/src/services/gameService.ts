@@ -892,6 +892,36 @@ export async function startGame(teamId: string) {
             difficultySeed: Math.max(1, Math.min(5, team.current_order))
           })
         : null;
+    // Preserve reroute continuity across refresh/reconnect.
+    // If the latest action for this order redirected to trap and no new scan lock exists,
+    // restore that trap clue instead of falling back to entry/expected clue.
+    let recoveredRerouteClue: ReturnType<typeof buildRoomClue> | null = null;
+    if (!currentRoom && team.phase === "main" && !finalKeyState.gate_ready) {
+      const [wrongLogs, trapWrongLogs, scanLogs] = await Promise.all([
+        listTeamActionLogs(event.id, team.id, LOG_ACTIONS.ANSWER_WRONG, 3),
+        listTeamActionLogs(event.id, team.id, "trap_answer_wrong", 3),
+        listTeamActionLogs(event.id, team.id, LOG_ACTIONS.ROOM_SCAN, 5)
+      ]);
+      const latestWrong = [...wrongLogs, ...trapWrongLogs]
+        .filter((row) => Number(row?.metadata?.order) === team.current_order)
+        .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+      const lastScanThisOrder = scanLogs
+        .filter((row) => Number(row?.metadata?.order) === team.current_order)
+        .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+      if (latestWrong && (!lastScanThisOrder || String(latestWrong.timestamp) > String(lastScanThisOrder.timestamp))) {
+        const redirectRoom = String(latestWrong.metadata?.redirect_room ?? "").trim();
+        const rerouteRoom = rooms.find((r) => r.is_trap && r.room_number === redirectRoom);
+        if (rerouteRoom) {
+          recoveredRerouteClue = buildRoomClue(
+            rerouteRoom,
+            team.current_order + team.trap_hits + stableHash(answerToken(team.team_name)),
+            answerToken(team.team_name),
+            false,
+            true
+          );
+        }
+      }
+    }
     return {
       team,
       remaining_seconds: Math.max(0, event.game_duration - elapsedSeconds(team.start_time)),
@@ -928,8 +958,9 @@ export async function startGame(teamId: string) {
           : null,
       next_room_clue:
         team.phase === "rapid_fire" || finalKeyState.gate_ready || !nextTarget
-          ? null
-          : buildRoomClue(
+          ? recoveredRerouteClue
+          : recoveredRerouteClue ??
+            buildRoomClue(
               nextTarget,
               team.current_order + team.story_fragments_collected + stableHash(answerToken(team.team_name)),
               answerToken(team.team_name),
