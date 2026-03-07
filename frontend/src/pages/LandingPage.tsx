@@ -50,6 +50,18 @@ const RANKING_RULES = [
   "5) If still tied, higher rapid-fire score ranks higher."
 ];
 
+const SCORING_RULES = [
+  "Main round: correct answer starts at +50, wrong answer at -5 (then modifiers apply).",
+  "Rapid-fire: correct answer starts at +20, wrong answer at -2 (then modifiers apply).",
+  "Combo streak increases correct-answer gains up to +50% bonus.",
+  "Global pulse can change point gain/loss multiplier during your run.",
+  "Pulse ability use costs -10 points each use.",
+  "Shield ability arms trap protection; no direct point deduction.",
+  "Hints mainly add time penalty (not direct point subtraction).",
+  "Trap events can add penalties and may reduce points depending on trap class.",
+  "Story fragments + milestones add bonus points on correct progression checkpoints."
+];
+
 const QR_TYPES = [
   {
     name: "Room QR",
@@ -244,6 +256,15 @@ export function LandingPage() {
               <p className="mt-2 text-xs text-slate-300">
                 This prevents fast but low-accuracy runs from outranking teams that solved more correctly and scored higher points.
               </p>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-sky-300/30 bg-sky-500/10 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-sky-100">Scoring Formula (Transparency)</p>
+              <div className="mt-2 grid gap-1 text-xs text-slate-100">
+                {SCORING_RULES.map((rule) => (
+                  <p key={rule}>{rule}</p>
+                ))}
+              </div>
             </div>
           </article>
         </section>
