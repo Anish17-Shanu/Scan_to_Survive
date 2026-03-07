@@ -19,6 +19,7 @@ type NextTarget = {
   clue_style: string;
   clue_text: string;
   decode_hint: string;
+  clue_hints?: string[];
   unlock_token?: string;
   layer_one?: string;
   layer_two?: string;
@@ -1186,6 +1187,14 @@ export function GamePage() {
               {nextTarget.layer_two && <p className="mt-1 text-xs text-cyan-200">Layer 2: {nextTarget.layer_two}</p>}
               <p className="mt-1 text-xs text-slate-200">{nextTarget.clue_text}</p>
               <p className="mt-1 text-xs text-slate-400">{nextTarget.decode_hint}</p>
+              {Array.isArray(nextTarget.clue_hints) && nextTarget.clue_hints.length > 0 && (
+                <div className="mt-2 rounded-lg border border-white/10 bg-black/20 p-2">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-cyan-200">Clue Hints</p>
+                  {nextTarget.clue_hints.map((item, idx) => (
+                    <p key={`${item}-${idx}`} className="mt-1 text-[11px] text-slate-300">{item}</p>
+                  ))}
+                </div>
+              )}
               {nextTarget.unlock_token && <p className="mt-1 text-[10px] text-slate-500">Unlock token: {nextTarget.unlock_token}</p>}
             </>
           )}

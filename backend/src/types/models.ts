@@ -76,6 +76,8 @@ export type QuestionRow = {
   category: string;
   question_text: string;
   correct_answer: string;
+  hint_primary: string;
+  hint_secondary: string;
   active: boolean;
 };
 
@@ -87,6 +89,8 @@ export type TeamQuestionRow = {
   question_id: string;
   cached_question: string;
   cached_answer: string;
+  cached_hint_primary: string | null;
+  cached_hint_secondary: string | null;
   difficulty_level: number;
   created_at: string;
 };

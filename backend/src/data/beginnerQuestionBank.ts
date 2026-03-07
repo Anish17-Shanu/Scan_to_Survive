@@ -4,6 +4,8 @@ type QuestionSeed = {
   category: string;
   question_text: string;
   correct_answer: string;
+  hint_primary: string;
+  hint_secondary: string;
   active: boolean;
 };
 
@@ -284,16 +286,114 @@ function answerFormatHint(answer: string): string {
   return "single word or token";
 }
 
+function answerFingerprint(answer: string): string {
+  const variants = answer
+    .split("|")
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean);
+  const summarize = (token: string) => {
+    const words = token.split(/\s+/).filter(Boolean);
+    if (words.length > 1) {
+      const initials = words.map((w) => w[0]).join("");
+      return `${words.length} words, initials "${initials}", total chars ${token.length}`;
+    }
+    return `starts with "${token[0] ?? ""}", length ${token.length}`;
+  };
+  if (variants.length <= 1) return summarize(variants[0] ?? "");
+  return variants.slice(0, 2).map((v, i) => `v${i + 1}: ${summarize(v)}`).join(" | ");
+}
+
+function curatedQuestionHints(entry: BankEntry): { primary: string; secondary: string } {
+  const q = entry.question.toLowerCase();
+  const a = entry.answer.toLowerCase();
+  const primaryAnswer = a.split("|")[0]?.trim() ?? a.trim();
+  const fingerprint = answerFingerprint(entry.answer);
+
+  if (q.includes("stands for")) {
+    return {
+      primary: `Expand the acronym completely. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Write the full phrase in lowercase words, not short form."
+    };
+  }
+  if (q.includes("status code") || q.includes("how many") || /^\d+/.test(primaryAnswer)) {
+    return {
+      primary: `Numeric response required. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Use digits only; no words, no symbols unless explicitly asked."
+    };
+  }
+  if (q.includes("true/false") || q.includes("yes or no")) {
+    return {
+      primary: `Boolean-style single token expected. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Use exactly one word: true/false or yes/no as requested."
+    };
+  }
+  if (q.includes("without < >")) {
+    return {
+      primary: `HTML/token only expected. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Do not include angle brackets, quotes, or explanation."
+    };
+  }
+  if (q.includes("output of") || q.startsWith("evaluate")) {
+    return {
+      primary: `Evaluate exactly; result shape is fixed. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Return only the computed final value/token."
+    };
+  }
+  if (primaryAnswer.startsWith("git ")) {
+    return {
+      primary: `Full git command expected. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Include git subcommand and required flags/args."
+    };
+  }
+  if (primaryAnswer.includes("|")) {
+    return {
+      primary: `Multiple accepted variants exist. Fingerprint: ${fingerprint}.`,
+      secondary: "Any one standard variant is valid."
+    };
+  }
+  if (entry.category === "database" && q.includes("normal form")) {
+    return {
+      primary: `Normalization term expected. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Short form (e.g., 2NF/3NF) or full name is accepted."
+    };
+  }
+  if (entry.category === "network" && (q.includes("protocol") || q.includes("port"))) {
+    return {
+      primary: `Networking token expected. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Use exact protocol/port token, lowercase unless numeric."
+    };
+  }
+  if (entry.category === "security") {
+    return {
+      primary: `Canonical security term expected. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Use the standard term, not a long explanation sentence."
+    };
+  }
+  if (entry.category === "python" || entry.category === "java" || entry.category === "c" || entry.category === "js") {
+    return {
+      primary: `Language token/keyword/API expected. Answer fingerprint: ${fingerprint}.`,
+      secondary: "Exact spelling and symbols matter."
+    };
+  }
+  return {
+    primary: `Target concept is in ${entry.category}. Answer fingerprint: ${fingerprint}.`,
+    secondary: "Return the shortest exact technical term matching the concept."
+  };
+}
+
 function push(rows: QuestionSeed[], eventId: string, difficulty: number, entry: BankEntry, serial: number): void {
   const cycle = Math.floor(serial / 100) + 1;
   const withSet = cycle === 1 ? entry.question : `${entry.question} (Set ${cycle})`;
   const questionText = `${withSet} [Answer format: ${answerFormatHint(entry.answer)}]`;
+  const hints = curatedQuestionHints(entry);
   rows.push({
     event_config_id: eventId,
     difficulty_level: difficulty,
     category: entry.category,
     question_text: questionText,
     correct_answer: entry.answer.trim().toLowerCase(),
+    hint_primary: hints.primary,
+    hint_secondary: hints.secondary,
     active: true
   });
 }

@@ -105,6 +105,8 @@ create table questions_pool (
   category text not null,
   question_text text not null,
   correct_answer text not null,
+  hint_primary text not null default '',
+  hint_secondary text not null default '',
   active boolean not null default true
 );
 
@@ -116,6 +118,8 @@ create table team_questions (
   question_id uuid not null references questions_pool(id) on delete restrict,
   cached_question text not null,
   cached_answer text not null,
+  cached_hint_primary text null,
+  cached_hint_secondary text null,
   difficulty_level integer not null check (difficulty_level between 1 and 5),
   created_at timestamptz not null default now(),
   unique(team_id, order_number)
@@ -186,13 +190,15 @@ left join paths p on p.id = t.assigned_path
 left join rooms r on r.id = t.current_room_id;
 
 -- Seed example question pool (replace with your real question bank)
-insert into questions_pool(event_config_id, difficulty_level, category, question_text, correct_answer)
+insert into questions_pool(event_config_id, difficulty_level, category, question_text, correct_answer, hint_primary, hint_secondary)
 select
   ec.id,
   diff,
   'general',
   format('Sample Q%1$s level %2$s', n, diff),
-  format('ans%1$s', n)
+  format('ans%1$s', n),
+  'Sample primary hint',
+  'Sample secondary hint'
 from (select id from event_config limit 1) ec,
 generate_series(1, 5) diff,
 generate_series(1, 20) n

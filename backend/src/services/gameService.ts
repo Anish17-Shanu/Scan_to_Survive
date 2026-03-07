@@ -119,6 +119,116 @@ function primaryAnswer(expected: string): string {
   return answerVariants(expected)[0] ?? "";
 }
 
+function answerFormatGuide(question: string, expected: string): string {
+  const normalizedQuestion = normalize(question);
+  const variants = answerVariants(expected);
+  const primary = variants[0] ?? "";
+  if (!primary) return "Answer format: short technical term.";
+  if (variants.length > 1) return "Answer format: either accepted standard variant is valid.";
+  if (/yes or no|yes\/no/.test(normalizedQuestion)) return "Answer format: use exactly 'yes' or 'no'.";
+  if (/without\s*<\s*>/.test(question)) return "Answer format: tag/token only, no angle brackets.";
+  if (/^git\s+[a-z]/.test(primary)) return "Answer format: full git command (include 'git').";
+  if (/^[0-9]+$/.test(primary)) return "Answer format: digits only (no words).";
+  if (/^[a-z]+(\.[a-z0-9]+)+$/.test(primary)) return "Answer format: dot-notation token.";
+  if (/^[#/%][a-z0-9/]*$/.test(primary) || /\/\//.test(primary)) return "Answer format: exact symbol/token.";
+  if (primary.includes(" ")) return "Answer format: lowercase words with spaces.";
+  return "Answer format: single lowercase technical term.";
+}
+
+function buildHintText(difficulty: number, question: string, expected: string): string {
+  const variants = answerVariants(expected);
+  const primary = variants[0] ?? "";
+  const shape = primary.includes(" ")
+    ? `${primary.split(/\s+/).filter(Boolean).length} words`
+    : `${primary.length} chars`;
+  const lead = primary[0] ?? "";
+  return `Hint (${difficulty}): focus on the most specific noun in the question. ${answerFormatGuide(question, expected)} Shape: ${shape}. Starts with "${lead}".`;
+}
+
+function composeQuestionHint(input: {
+  difficulty: number;
+  primary?: string | null;
+  secondary?: string | null;
+  question: string;
+  expected: string;
+}) {
+  const primary = input.primary?.trim();
+  const secondary = input.secondary?.trim();
+  if (primary && secondary) {
+    return `Hint (${input.difficulty}): ${primary} Secondary: ${secondary}`;
+  }
+  if (primary) return `Hint (${input.difficulty}): ${primary}`;
+  return buildHintText(input.difficulty, input.question, input.expected);
+}
+
+function abilityGuidance(input: {
+  shieldActive: boolean;
+  shieldCharges: number;
+  pulseCharges: number;
+  hintCredits: number;
+}): string {
+  if (input.shieldActive) {
+    return "Ability tip: Shield is armed. Your next trap scan is auto-blocked.";
+  }
+  const parts: string[] = [];
+  parts.push(
+    input.shieldCharges > 0
+      ? `Shield ready (${input.shieldCharges} charge${input.shieldCharges === 1 ? "" : "s"}).`
+      : "Shield empty: scan a Shield power QR."
+  );
+  parts.push(
+    input.pulseCharges > 0
+      ? `Pulse ready (${input.pulseCharges} charge${input.pulseCharges === 1 ? "" : "s"}).`
+      : "Pulse empty: scan a Pulse power QR."
+  );
+  if (input.hintCredits > 0) {
+    parts.push(`Bonus hint credits available: ${input.hintCredits}.`);
+  }
+  return `Ability tip: ${parts.join(" ")}`;
+}
+
+function clueHintPack(input: {
+  clueStyle: (typeof CLUE_STYLES)[number];
+  floor: number;
+  shifted: string;
+  reversed: string;
+  plusFloor: string;
+}) {
+  if (input.clueStyle === "cipher") {
+    return [
+      `Hint 1: Encoded token is ${input.shifted}.`,
+      "Hint 2: Inverse digit shift by -3 (mod 10).",
+      "Hint 3: Preserve digit order."
+    ];
+  }
+  if (input.clueStyle === "binary") {
+    return [
+      "Hint 1: Split by spaces into blocks.",
+      "Hint 2: Each block is 6-bit ASCII for one digit.",
+      "Hint 3: Convert and concatenate all digits."
+    ];
+  }
+  if (input.clueStyle === "logic") {
+    return [
+      `Hint 1: Use room + floor = ${input.plusFloor}.`,
+      `Hint 2: Subtract floor (${input.floor}) from total.`,
+      "Hint 3: Result is your next room token."
+    ];
+  }
+  if (input.clueStyle === "code-snippet") {
+    return [
+      `Hint 1: token is reversed (${input.reversed}).`,
+      "Hint 2: Apply reverse operation once.",
+      "Hint 3: Final token maps to next room number."
+    ];
+  }
+  return [
+    "Hint 1: Use first/last digit anchors.",
+    `Hint 2: Mirror token is ${input.reversed}.`,
+    "Hint 3: Rebuild full token from the mirrored pattern."
+  ];
+}
+
 function parseScannedCode(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "";
@@ -182,6 +292,8 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
     question_id: string;
     cached_question: string;
     cached_answer: string;
+    cached_hint_primary: string | null;
+    cached_hint_secondary: string | null;
     difficulty_level: number;
   }> = [];
 
@@ -197,6 +309,8 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
       question_id: picked.id,
       cached_question: picked.question_text,
       cached_answer: picked.correct_answer,
+      cached_hint_primary: picked.hint_primary ?? null,
+      cached_hint_secondary: picked.hint_secondary ?? null,
       difficulty_level: picked.difficulty_level
     });
   }
@@ -214,6 +328,8 @@ async function cacheTeamQuestions(teamId: string, eventId: string, mainSteps: nu
       question_id: picked.id,
       cached_question: `[Rapid ${i}] ${picked.question_text}`,
       cached_answer: picked.correct_answer,
+      cached_hint_primary: picked.hint_primary ?? null,
+      cached_hint_secondary: picked.hint_secondary ?? null,
       difficulty_level: 5
     });
   }
@@ -290,6 +406,7 @@ function buildRoomClue(
     .join(" ");
   const tunedHint = (hint: string) =>
     assistMode ? `${hint} Assist: validate with teammate before moving.` : hint;
+  const clue_hints = clueHintPack({ clueStyle, floor, shifted, reversed, plusFloor });
 
   if (clueStyle === "cipher") {
     return {
@@ -297,6 +414,7 @@ function buildRoomClue(
       title: "Ciphered Route",
       clue_text: `Shift every digit by -3 (mod 10): ${shifted}`,
       decode_hint: tunedHint("Inverse the transform to recover the room token."),
+      clue_hints,
       unlock_token: unlockToken
     };
   }
@@ -304,8 +422,9 @@ function buildRoomClue(
     return {
       clue_style: clueStyle,
       title: "Binary Route",
-      clue_text: `Decode ASCII binary into digits: ${binary}`,
-      decode_hint: tunedHint("Interpret each block as an encoded character stream."),
+      clue_text: `Decode 6-bit ASCII binary blocks into digits: ${binary}`,
+      decode_hint: tunedHint("Interpret each block as one encoded digit character."),
+      clue_hints,
       unlock_token: unlockToken
     };
   }
@@ -315,6 +434,7 @@ function buildRoomClue(
       title: "Logic Route",
       clue_text: `Room + floor = ${plusFloor}. Floor = ${floor}.`,
       decode_hint: tunedHint("Extract the unknown from the relation."),
+      clue_hints,
       unlock_token: unlockToken
     };
   }
@@ -324,6 +444,7 @@ function buildRoomClue(
       title: "Code Route",
       clue_text: `const token="${reversed}"; const room = token.split("").reverse().join("");`,
       decode_hint: tunedHint("Execute the transformation mentally."),
+      clue_hints,
       unlock_token: unlockToken
     };
   }
@@ -332,6 +453,7 @@ function buildRoomClue(
     title: "Pattern Route",
     clue_text: `Interleave pattern hint: ${raw[0] ?? ""}-?-${raw[raw.length - 1] ?? ""}, mirror token ${reversed}`,
     decode_hint: tunedHint("Resolve the mirrored pattern to recover the route."),
+    clue_hints,
     unlock_token: unlockToken
   };
   if (!multiLayer) return clue;
@@ -348,6 +470,11 @@ function fallbackClue(message: string) {
     title: "Fallback Route Clue",
     clue_text: message,
     decode_hint: "Cross-check with your teammate and continue to the next instructed checkpoint.",
+    clue_hints: [
+      "Hint 1: Confirm your current order with the event desk.",
+      "Hint 2: Re-scan only the expected room QR from latest clue.",
+      "Hint 3: Resume strict scan-submit-decode flow."
+    ],
     unlock_token: "fallback"
   };
 }
@@ -445,6 +572,8 @@ async function recacheRapidQuestionsByCategory(input: {
     question_id: string;
     cached_question: string;
     cached_answer: string;
+    cached_hint_primary: string | null;
+    cached_hint_secondary: string | null;
     difficulty_level: number;
   }> = [];
   const pool = await listQuestionsByDifficulty(input.eventId, 5);
@@ -460,6 +589,8 @@ async function recacheRapidQuestionsByCategory(input: {
       question_id: picked.id,
       cached_question: `[Rapid ${i} | ${input.category.toUpperCase()}] ${picked.question_text}`,
       cached_answer: picked.correct_answer,
+      cached_hint_primary: picked.hint_primary ?? null,
+      cached_hint_secondary: picked.hint_secondary ?? null,
       difficulty_level: 5
     });
   }
@@ -593,7 +724,9 @@ async function buildTrapQuestion(input: {
   return {
     difficulty_level: picked.difficulty_level,
     question_text: `[Trap Challenge] ${picked.question_text}`,
-    answer: picked.correct_answer
+    answer: picked.correct_answer,
+    hint_primary: picked.hint_primary,
+    hint_secondary: picked.hint_secondary
   };
 }
 
@@ -1328,7 +1461,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       });
       return {
         completed: false,
-        message: "Trap cleared. Decode the clue packet for your next room.",
+        message: "Response recorded. Decode the clue packet for your next room.",
         team: escaped,
         active_pulse: pulse,
         latest_broadcast: broadcast,
@@ -1361,7 +1494,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
     });
     return {
       completed: false,
-      message: "Trap failed. Decode the reroute clue.",
+      message: "Response recorded. Decode the reroute clue packet.",
       team: trappedAgain,
       active_pulse: pulse,
       latest_broadcast: broadcast,
@@ -1448,7 +1581,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
     const rivalChallenge = await maybeRivalChallenge(event.id, team.id, updatedWrong.points);
     return {
       completed: false,
-      message: "Wrong answer. Decode the reroute clue.",
+      message: "Response recorded. Decode the reroute clue packet.",
       team: updatedWrong,
       active_pulse: pulse,
       latest_broadcast: broadcast,
@@ -1490,7 +1623,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       if (!held) throw new ApiError(409, "Concurrent final-lock update");
       return {
         completed: false,
-        message: "Final vault sealed. Recover more story fragments and decode the clue to retry the final room.",
+        message: "Final vault lock active. Recover more story fragments and decode the clue to retry the final room.",
         fragment_unlocked: fragment ?? undefined,
         fragment_bonus_points: storyPoints,
         milestone_reward: milestoneReward ?? undefined,
@@ -1531,7 +1664,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       completed: false,
       rapid_fire_ready: true,
       message:
-        "Final answer accepted. Scan both key shards (Nexus and Amiphoria), then scan the rapid-fire chamber QR.",
+        "Final vault route unlocked. Scan both key shards (Nexus and Amiphoria), then scan the rapid-fire chamber QR.",
       fragment_unlocked: fragment ?? undefined,
       fragment_bonus_points: storyPoints,
       milestone_reward: milestoneReward ?? undefined,
@@ -1578,7 +1711,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
   const nextRoom = await findExpectedRoom(event.id, teamOut.assigned_path as string, teamOut.current_order);
   return {
     completed: false,
-    message: "Answer accepted. Decode your clue packet for the next room.",
+    message: "Response recorded. Decode your clue packet for the next room.",
     fragment_unlocked: fragment ?? undefined,
     fragment_bonus_points: storyPoints,
     milestone_reward: milestoneReward ?? undefined,
@@ -1647,8 +1780,19 @@ export async function useHint(teamId: string) {
       trapRoomCode: currentRoom.room_code,
       difficultySeed: Math.max(1, Math.min(5, team.current_order))
     });
-    hint = `Hint (${trapQuestion.difficulty_level}): focus on the most specific noun in the question`;
-  } else {
+    hint = `${composeQuestionHint({
+      difficulty: trapQuestion.difficulty_level,
+      primary: trapQuestion.hint_primary,
+      secondary: trapQuestion.hint_secondary,
+      question: trapQuestion.question_text,
+      expected: trapQuestion.answer
+    })} ${abilityGuidance({
+      shieldActive: team.shield_active,
+      shieldCharges: team.shield_charges,
+      pulseCharges: team.pulse_charges,
+      hintCredits
+    })}`;
+  } else if (currentRoom) {
     const mainSteps = computeMainSteps(rooms, paths.length);
     const question = await ensureQuestionAvailable({
       teamId: team.id,
@@ -1657,8 +1801,44 @@ export async function useHint(teamId: string) {
       orderNumber: team.current_order
     });
     hint = question
-      ? `Hint (${question.difficulty_level}): focus on the most specific noun in the question`
+      ? `${composeQuestionHint({
+          difficulty: question.difficulty_level,
+          primary: question.cached_hint_primary,
+          secondary: question.cached_hint_secondary,
+          question: question.cached_question,
+          expected: question.cached_answer
+        })} ${abilityGuidance({
+          shieldActive: team.shield_active,
+          shieldCharges: team.shield_charges,
+          pulseCharges: team.pulse_charges,
+          hintCredits
+        })}`
       : "Hint unavailable";
+  } else {
+    const expected = team.assigned_path ? await findExpectedRoom(event.id, team.assigned_path, team.current_order) : null;
+    if (expected) {
+      const routeHint = buildRoomClue(
+        expected,
+        team.current_order + team.points + stableHash(answerToken(team.team_name)),
+        answerToken(team.team_name),
+        true,
+        true
+      );
+      const pack = Array.isArray(routeHint.clue_hints) ? routeHint.clue_hints.join(" ") : routeHint.decode_hint;
+      hint = `Route hint (${routeHint.clue_style}): ${pack} ${abilityGuidance({
+        shieldActive: team.shield_active,
+        shieldCharges: team.shield_charges,
+        pulseCharges: team.pulse_charges,
+        hintCredits
+      })}`;
+    } else {
+      hint = `Route hint unavailable. ${abilityGuidance({
+        shieldActive: team.shield_active,
+        shieldCharges: team.shield_charges,
+        pulseCharges: team.pulse_charges,
+        hintCredits
+      })}`;
+    }
   }
   return {
     team: updated,
@@ -1688,7 +1868,7 @@ export async function useAbility(teamId: string, ability: "shield" | "pulse") {
     return {
       team: updated,
       ability,
-      message: "Shield armed. Next trap will be blocked."
+      message: "Shield armed. Next trap scan will be blocked automatically. Refill by scanning a Shield power QR."
     };
   }
 
@@ -1720,7 +1900,7 @@ export async function useAbility(teamId: string, ability: "shield" | "pulse") {
   return {
     team: updated,
     ability,
-    message: `Pulse reveal: ${mask}`
+    message: `Pulse reveal: ${mask}. Refill by scanning a Pulse power QR.`
   };
 }
 
