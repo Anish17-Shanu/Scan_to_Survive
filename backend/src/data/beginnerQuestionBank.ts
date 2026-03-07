@@ -21,253 +21,241 @@ type BankEntry = {
 const d1Bank: BankEntry[] = [
   { category: "fundamentals", question: "CPU stands for?", answer: "central processing unit" },
   { category: "fundamentals", question: "RAM stands for?", answer: "random access memory" },
-  { category: "fundamentals", question: "GPU stands for?", answer: "graphics processing unit" },
   { category: "fundamentals", question: "ROM stands for?", answer: "read only memory" },
   { category: "fundamentals", question: "OS stands for?", answer: "operating system" },
-  { category: "fundamentals", question: "Binary number system uses which two digits?", answer: "0 and 1" },
-  { category: "fundamentals", question: "1 kilobyte equals how many bytes (binary convention)?", answer: "1024" },
-  { category: "fundamentals", question: "Main brain of a computer is called?", answer: "cpu" },
-  { category: "web", question: "Standard language for structuring web pages?", answer: "html" },
-  { category: "web", question: "Language used to style web pages?", answer: "css" },
-  { category: "web", question: "Language commonly used for browser scripting?", answer: "javascript" },
-  { category: "web", question: "HTML tag for the largest heading (without < >)?", answer: "h1" },
-  { category: "web", question: "HTML tag used for a hyperlink (without < >)?", answer: "a" },
-  { category: "web", question: "HTML tag used to display an image (without < >)?", answer: "img" },
-  { category: "web", question: "CSS property used to change text color?", answer: "color" },
-  { category: "web", question: "CSS property for inner spacing?", answer: "padding" },
-  { category: "web", question: "CSS property for outer spacing?", answer: "margin" },
-  { category: "network", question: "Protocol used for secure websites?", answer: "https" },
-  { category: "network", question: "DNS expands to?", answer: "domain name system" },
-  { category: "network", question: "Unique address of a device on a network is called?", answer: "ip address" },
-  { category: "network", question: "Device that forwards packets between networks?", answer: "router" },
-  { category: "network", question: "Common protocol for sending emails from client to server?", answer: "smtp" },
-  { category: "database", question: "SQL stands for?", answer: "structured query language" },
-  { category: "database", question: "SQL command to read data from a table?", answer: "select" },
-  { category: "database", question: "SQL command to add a new row?", answer: "insert" },
-  { category: "database", question: "SQL clause used to filter rows?", answer: "where" },
-  { category: "database", question: "Database type with fixed tables and relations?", answer: "relational" },
-  { category: "database", question: "Popular open-source relational database that uses SQL and starts with M?", answer: "mysql" },
-  { category: "database", question: "Popular document-oriented NoSQL database?", answer: "mongodb" },
-  { category: "git", question: "Version control system widely used in software teams?", answer: "git" },
-  { category: "git", question: "Git command to check working tree status?", answer: "git status" },
-  { category: "git", question: "Git command to stage all changed files in current folder?", answer: "git add ." },
-  { category: "git", question: "Git command to create a commit?", answer: "git commit" },
-  { category: "os", question: "Operating system family developed by Microsoft?", answer: "windows" },
-  { category: "os", question: "Operating system family developed by Apple for Mac computers?", answer: "macos" },
-  { category: "os", question: "Open-source kernel used by many server distributions?", answer: "linux" },
-  { category: "security", question: "Practice of proving identity before access is granted?", answer: "authentication" },
-  { category: "security", question: "Practice of deciding what an authenticated user can do?", answer: "authorization" },
-  { category: "cloud", question: "On-demand computing resources delivered over the internet are called?", answer: "cloud computing" }
-  ,
-  { category: "coding", question: "In programming, a set of instructions that performs a task is called?", answer: "function" },
-  { category: "coding", question: "Data type used for true/false values?", answer: "boolean" },
-  { category: "python", question: "Python keyword used to define a function?", answer: "def" },
+  { category: "fundamentals", question: "1 kilobyte in binary convention equals how many bytes?", answer: "1024" },
+  { category: "fundamentals", question: "Binary system uses which two digits?", answer: "0 and 1" },
+  { category: "fundamentals", question: "Main processing chip of a computer is called?", answer: "cpu" },
+  { category: "fundamentals", question: "The physical parts of a computer are called?", answer: "hardware" },
+  { category: "fundamentals", question: "Programs and apps are collectively called?", answer: "software" },
+  { category: "fundamentals", question: "A tiny picture representing an app is called?", answer: "icon" },
+
+  { category: "digital-life", question: "Technology used for contactless payment by tapping card/phone?", answer: "nfc" },
+  { category: "digital-life", question: "One-time password is commonly abbreviated as?", answer: "otp" },
+  { category: "digital-life", question: "Two-step login that combines password + OTP is called?", answer: "two factor authentication|2fa" },
+  { category: "digital-life", question: "Cloud storage service by Google for files is called?", answer: "google drive|drive" },
+  { category: "digital-life", question: "A fake message trying to steal credentials is called?", answer: "phishing" },
+  { category: "digital-life", question: "App used in India to store verified digital documents?", answer: "digilocker" },
+
+  { category: "india-tech", question: "Indian instant payment rail launched by NPCI in 2016 is called?", answer: "upi" },
+  { category: "india-tech", question: "Organization that developed UPI?", answer: "npci|national payments corporation of india" },
+  { category: "india-tech", question: "India's 12-digit digital identity program is called?", answer: "aadhaar|aadhar" },
+  { category: "india-tech", question: "Authority that issues Aadhaar IDs?", answer: "uidai" },
+  { category: "india-tech", question: "Open Network for Digital Commerce is abbreviated as?", answer: "ondc" },
+  { category: "india-tech", question: "ISRO mission that soft-landed near moon south pole in 2023?", answer: "chandrayaan-3|chandrayaan 3" },
+  { category: "india-tech", question: "Name announced for Chandrayaan-3 landing site?", answer: "shiv shakti point|shivshakti point" },
+
+  { category: "html", question: "Standard markup language for web page structure?", answer: "html" },
+  { category: "css", question: "Language used to style web pages?", answer: "css" },
+  { category: "js", question: "Language commonly used for browser-side scripting?", answer: "javascript" },
+  { category: "html", question: "HTML tag for hyperlink (without < >)?", answer: "a" },
+  { category: "html", question: "HTML tag for image (without < >)?", answer: "img" },
+  { category: "css", question: "CSS property used to change text color?", answer: "color" },
+  { category: "js", question: "In JavaScript, keyword used to declare a variable with block scope?", answer: "let" },
+
+  { category: "coding-basic", question: "In programming, reusable block of code is called?", answer: "function" },
+  { category: "coding-basic", question: "Data type used for true or false values?", answer: "boolean" },
+  { category: "python", question: "Python keyword to define a function?", answer: "def" },
   { category: "java", question: "Java keyword to define a class?", answer: "class" },
-  { category: "c", question: "Header file commonly used for printf in C?", answer: "stdio.h" },
-  { category: "coding", question: "Symbol used for single-line comments in Python?", answer: "#" },
-  { category: "coding", question: "Symbol used for single-line comments in Java/C/C++?", answer: "//" },
-  { category: "coding", question: "Operator used to assign value to a variable in most languages?", answer: "=" }
+  { category: "c", question: "C header for printf/scanf?", answer: "stdio.h" }
 ];
 
 const d2Bank: BankEntry[] = [
-  { category: "web", question: "HTTP status code for successful request?", answer: "200" },
-  { category: "web", question: "HTTP status code for resource not found?", answer: "404" },
-  { category: "web", question: "HTTP status code for unauthorized request?", answer: "401" },
-  { category: "web", question: "HTTP method typically used to create a resource?", answer: "post" },
-  { category: "web", question: "HTTP method used to fetch resource data?", answer: "get" },
-  { category: "web", question: "Data format commonly used by REST APIs?", answer: "json" },
-  { category: "web", question: "JavaScript method to parse JSON text to object?", answer: "json.parse" },
-  { category: "web", question: "JavaScript method to convert object to JSON string?", answer: "json.stringify" },
-  { category: "web", question: "Browser storage that persists until manually cleared?", answer: "localstorage" },
-  { category: "web", question: "Browser storage cleared when tab or browser session ends?", answer: "sessionstorage" },
-  { category: "web", question: "CSS layout model for one-dimensional layouts?", answer: "flexbox" },
-  { category: "web", question: "CSS layout model for two-dimensional rows and columns?", answer: "grid" },
-  { category: "web", question: "In CSS, selector to target element with id main?", answer: "#main" },
-  { category: "web", question: "In CSS, selector to target class card?", answer: ".card" },
-  { category: "database", question: "SQL command used to modify existing rows?", answer: "update" },
-  { category: "database", question: "SQL command used to remove rows?", answer: "delete" },
-  { category: "database", question: "SQL keyword used to sort results?", answer: "order by" },
-  { category: "database", question: "SQL aggregate function to count rows?", answer: "count" },
-  { category: "database", question: "SQL JOIN that returns matching rows from both tables?", answer: "inner join" },
-  { category: "database", question: "Constraint that prevents duplicate values in a column?", answer: "unique" },
-  { category: "database", question: "Column type designed for date and time in SQL?", answer: "timestamp" },
-  { category: "network", question: "Port number used by HTTPS by default?", answer: "443" },
-  { category: "network", question: "Port number used by HTTP by default?", answer: "80" },
-  { category: "network", question: "Protocol used for secure remote shell access?", answer: "ssh" },
-  { category: "network", question: "Protocol for automatic IP assignment in local networks?", answer: "dhcp" },
-  { category: "network", question: "Command to test reachability by sending echo requests?", answer: "ping" },
-  { category: "git", question: "Git command to download remote changes and merge?", answer: "git pull" },
-  { category: "git", question: "Git command to upload local commits to remote?", answer: "git push" },
-  { category: "git", question: "Git command to create and switch to a new branch named feature-x?", answer: "git checkout -b feature-x" },
-  { category: "git", question: "Git command to view commit history?", answer: "git log" },
-  { category: "os", question: "Linux command to list files in current directory?", answer: "ls" },
-  { category: "os", question: "Linux command to print current directory path?", answer: "pwd" },
-  { category: "os", question: "Linux command to create a new directory?", answer: "mkdir" },
-  { category: "os", question: "Linux command to remove a file?", answer: "rm" },
-  { category: "security", question: "Technique of converting plaintext to unreadable form using key?", answer: "encryption" },
-  { category: "security", question: "A one-way transformation used to verify integrity?", answer: "hashing" },
-  { category: "cloud", question: "Cloud model where provider manages runtime but not app code?", answer: "iaas" },
-  { category: "cloud", question: "Cloud model where provider manages runtime and platform for your code?", answer: "paas" },
-  { category: "cloud", question: "Cloud model where users consume complete application over internet?", answer: "saas" },
-  { category: "python", question: "Python built-in to get length of list/string?", answer: "len" },
-  { category: "python", question: "Python keyword to iterate over items?", answer: "for" },
-  { category: "java", question: "Java keyword used for inheritance?", answer: "extends" },
-  { category: "java", question: "Java access modifier for widest visibility?", answer: "public" },
-  { category: "c", question: "In C, format specifier for integer in printf?", answer: "%d" },
-  { category: "c", question: "In C, function used to read formatted input from stdin?", answer: "scanf" },
-  { category: "coding", question: "Common loop keyword used in Java, C, and JavaScript?", answer: "while" },
-  { category: "coding", question: "Keyword used to exit a loop immediately?", answer: "break" },
-  { category: "coding", question: "Keyword used to skip to next loop iteration?", answer: "continue" },
-  { category: "coding", question: "OOP principle of wrapping data and methods together?", answer: "encapsulation" }
+  { category: "html", question: "HTTP status code for success?", answer: "200" },
+  { category: "html", question: "HTTP status code for not found?", answer: "404" },
+  { category: "html", question: "HTTP method usually used to create a resource?", answer: "post" },
+  { category: "html", question: "HTTP method used to fetch resource data?", answer: "get" },
+  { category: "js", question: "Data format commonly used by REST APIs?", answer: "json" },
+  { category: "js", question: "JavaScript method to parse JSON string to object?", answer: "json.parse" },
+  { category: "js", question: "JavaScript method to convert object to JSON string?", answer: "json.stringify" },
+  { category: "css", question: "CSS model for one-dimensional layout?", answer: "flexbox" },
+  { category: "css", question: "CSS model for two-dimensional layout?", answer: "grid" },
+  { category: "css", question: "CSS selector for id main?", answer: "#main" },
+  { category: "css", question: "CSS selector for class card?", answer: ".card" },
+
+  { category: "sql", question: "SQL command to read data from a table?", answer: "select" },
+  { category: "sql", question: "SQL command to add new row?", answer: "insert" },
+  { category: "sql", question: "SQL command to modify existing row?", answer: "update" },
+  { category: "sql", question: "SQL command to delete row?", answer: "delete" },
+  { category: "sql", question: "SQL clause used to filter rows?", answer: "where" },
+  { category: "sql", question: "SQL keyword used to sort results?", answer: "order by" },
+  { category: "sql", question: "SQL aggregate function to count rows?", answer: "count" },
+
+  { category: "network", question: "Default port for HTTPS?", answer: "443" },
+  { category: "network", question: "Default port for HTTP?", answer: "80" },
+  { category: "network", question: "Protocol used for secure remote shell?", answer: "ssh" },
+  { category: "network", question: "Protocol used to map domain names to IPs?", answer: "dns" },
+  { category: "network", question: "Protocol for automatic IP assignment in LAN?", answer: "dhcp" },
+  { category: "network", question: "Command to test host reachability?", answer: "ping" },
+
+  { category: "git", question: "Git command to check working tree status?", answer: "git status" },
+  { category: "git", question: "Git command to stage all changed files in current dir?", answer: "git add ." },
+  { category: "git", question: "Git command to create a commit?", answer: "git commit" },
+  { category: "git", question: "Git command to upload commits to remote?", answer: "git push" },
+
+  { category: "os", question: "Linux command to list files?", answer: "ls" },
+  { category: "os", question: "Linux command to print current directory?", answer: "pwd" },
+  { category: "os", question: "Linux command to create directory?", answer: "mkdir" },
+
+  { category: "security", question: "Converting plaintext into unreadable form using key is called?", answer: "encryption" },
+  { category: "security", question: "One-way digest operation used for integrity check is called?", answer: "hashing" },
+
+  { category: "india-tech", question: "Platform used in India for FASTag highway toll collection ecosystem?", answer: "fastag" },
+  { category: "india-tech", question: "Unified mobile app by NPCI for UPI transfers (short name)?", answer: "bhim" },
+  { category: "india-tech", question: "Government online procurement portal often abbreviated as GeM expands to?", answer: "government e marketplace|government e-marketplace" }
 ];
 
 const d3Bank: BankEntry[] = [
-  { category: "js", question: "In JavaScript, value returned by typeof null?", answer: "object" },
-  { category: "js", question: "JavaScript array method that adds item to end?", answer: "push" },
-  { category: "js", question: "JavaScript array method that removes and returns last item?", answer: "pop" },
-  { category: "js", question: "JavaScript keyword to declare block-scoped variable?", answer: "let" },
-  { category: "js", question: "JavaScript keyword for immutable binding?", answer: "const" },
-  { category: "js", question: "Promise state before resolve or reject?", answer: "pending" },
-  { category: "web", question: "Protocol used for full-duplex communication over one TCP connection in web apps?", answer: "websocket" },
-  { category: "web", question: "Common architecture style using HTTP methods on resources?", answer: "rest" },
-  { category: "web", question: "Header used by browsers to indicate origin URL of request navigation?", answer: "referer" },
-  { category: "web", question: "Cross-Origin Resource Sharing is abbreviated as?", answer: "cors" },
-  { category: "database", question: "Database property ensuring each transaction is all-or-nothing?", answer: "atomicity" },
-  { category: "database", question: "Index generally speeds up which operation: read or write?", answer: "read" },
-  { category: "database", question: "Normal form that removes partial dependency on composite keys?", answer: "2nf|second normal form" },
-  { category: "database", question: "SQL clause used to filter grouped results?", answer: "having" },
-  { category: "database", question: "Primary key can contain NULL values: yes or no?", answer: "no" },
-  { category: "network", question: "In the TCP/IP model, IP belongs to which layer?", answer: "internet layer" },
-  { category: "network", question: "Protocol used to translate domain names to IP addresses?", answer: "dns" },
+  { category: "js", question: "In JavaScript, typeof null returns?", answer: "object" },
+  { category: "js", question: "Array method to add element at end?", answer: "push" },
+  { category: "js", question: "Array method to remove last element?", answer: "pop" },
+  { category: "js", question: "Promise state before resolve/reject?", answer: "pending" },
+  { category: "js", question: "Keyword for immutable binding in JavaScript?", answer: "const" },
+  { category: "html", question: "Web protocol for full-duplex communication over one TCP connection?", answer: "websocket" },
+  { category: "html", question: "Cross-Origin Resource Sharing abbreviation?", answer: "cors" },
+
+  { category: "sql", question: "JOIN that returns matching rows from both tables?", answer: "inner join" },
+  { category: "sql", question: "Can primary key contain NULL? (yes/no)", answer: "no" },
+  { category: "sql", question: "Normal form that removes partial dependency?", answer: "2nf|second normal form" },
+  { category: "sql", question: "Normal form that removes transitive dependency?", answer: "3nf|third normal form" },
+  { category: "sql", question: "SQL clause used to filter grouped rows?", answer: "having" },
+  { category: "sql", question: "Database property ensuring all-or-nothing transaction?", answer: "atomicity" },
+
   { category: "network", question: "Transport protocol that guarantees ordered delivery?", answer: "tcp" },
-  { category: "network", question: "Transport protocol with no delivery guarantee?", answer: "udp" },
+  { category: "network", question: "Transport protocol without delivery guarantee?", answer: "udp" },
   { category: "network", question: "CIDR suffix for subnet mask 255.255.255.0?", answer: "24" },
-  { category: "git", question: "Git command to combine another branch history into current branch?", answer: "git merge" },
+  { category: "network", question: "Loopback IPv4 address?", answer: "127.0.0.1" },
+  { category: "network", question: "In TCP/IP model, IP belongs to which layer?", answer: "internet layer" },
+
+  { category: "git", question: "Git command to combine another branch into current branch?", answer: "git merge" },
   { category: "git", question: "Git command to temporarily save uncommitted changes?", answer: "git stash" },
-  { category: "git", question: "Git command to show differences between working tree and index?", answer: "git diff" },
-  { category: "git", question: "Git area where files stay after add and before commit?", answer: "staging area" },
-  { category: "os", question: "Process identifier is commonly abbreviated as?", answer: "pid" },
-  { category: "os", question: "Scheduling strategy where each process gets fixed time slice?", answer: "round robin" },
-  { category: "os", question: "Memory issue when process accesses memory without permission?", answer: "segmentation fault" },
-  { category: "security", question: "Attack that tricks users into revealing credentials through fake pages?", answer: "phishing" },
-  { category: "security", question: "Security principle granting minimum required permissions?", answer: "least privilege" },
-  { category: "security", question: "Token format commonly used for stateless API auth with three dot-separated parts?", answer: "jwt" },
-  { category: "dsa", question: "Time complexity of binary search on sorted array?", answer: "o(log n)" },
-  { category: "dsa", question: "Time complexity of linear search in worst case?", answer: "o(n)" },
-  { category: "dsa", question: "Data structure that follows FIFO order?", answer: "queue" },
-  { category: "dsa", question: "Data structure that follows LIFO order?", answer: "stack" },
-  { category: "cloud", question: "Container orchestration platform by CNCF and Google origin?", answer: "kubernetes" },
-  { category: "cloud", question: "Artifact that describes container image build steps?", answer: "dockerfile" },
-  { category: "python", question: "Output of Python: type([]).__name__", answer: "list" },
-  { category: "python", question: "Python data type for key-value pairs?", answer: "dict|dictionary" },
-  { category: "python", question: "Python keyword used for exception handling block start?", answer: "try" },
+  { category: "git", question: "Git command to view unstaged diff?", answer: "git diff" },
+  { category: "git", question: "Area between add and commit is called?", answer: "staging area" },
+
+  { category: "security", question: "Attack using fake pages/messages to steal credentials?", answer: "phishing" },
+  { category: "security", question: "Least required permissions principle is called?", answer: "least privilege" },
+  { category: "security", question: "Token with three dot-separated parts for stateless auth?", answer: "jwt" },
+
+  { category: "python", question: "Python type name of [] is?", answer: "list" },
+  { category: "python", question: "Python data structure for key-value pairs?", answer: "dict|dictionary" },
+  { category: "python", question: "Python keyword to begin exception handling block?", answer: "try" },
+
   { category: "java", question: "JVM stands for?", answer: "java virtual machine" },
-  { category: "java", question: "Java collection that does not allow duplicate elements?", answer: "set" },
-  { category: "java", question: "Keyword used to create object instance in Java?", answer: "new" },
-  { category: "c", question: "In C, operator used to access value via pointer?", answer: "*" },
-  { category: "c", question: "In C, keyword used to declare a constant variable?", answer: "const" },
+  { category: "java", question: "Java collection that disallows duplicates?", answer: "set" },
+  { category: "java", question: "Java keyword to create object instance?", answer: "new" },
+
+  { category: "c", question: "In C, operator to dereference pointer?", answer: "*" },
   { category: "c", question: "In C, memory allocated with malloc should be released using?", answer: "free" },
-  { category: "coding", question: "Algorithmic approach where a problem is solved by solving smaller subproblems?", answer: "dynamic programming" }
+
+  { category: "india-tech", question: "India Stack component used for paperless signed documents?", answer: "digilocker" },
+  { category: "india-tech", question: "India's account-aggregator ecosystem is regulated by which financial regulator?", answer: "rbi|reserve bank of india" }
 ];
 
 const d4Bank: BankEntry[] = [
-  { category: "logic", question: "Evaluate: 3 + 4 * 2", answer: "11" },
-  { category: "logic", question: "Evaluate: (10 - 4) * 3", answer: "18" },
-  { category: "logic", question: "Evaluate in JavaScript: 5 === '5' (true/false)", answer: "false" },
-  { category: "logic", question: "Evaluate in JavaScript: 5 == '5' (true/false)", answer: "true" },
-  { category: "logic", question: "If n=7 and n%=3, final n?", answer: "1" },
-  { category: "logic", question: "If arr=[10,20,30,40], value of arr[2]?", answer: "30" },
-  { category: "logic", question: "For loop i from 1 to 4, sum of i values?", answer: "10" },
-  { category: "logic", question: "Highest valid index in array of length 9?", answer: "8" },
-  { category: "web", question: "HTTP status code for conflict?", answer: "409" },
-  { category: "web", question: "HTTP status code for internal server error?", answer: "500" },
-  { category: "web", question: "Header commonly used to send bearer token?", answer: "authorization" },
-  { category: "web", question: "Value prefix before token in bearer auth header?", answer: "bearer" },
-  { category: "web", question: "Frontend library created by Meta for UI components?", answer: "react" },
-  { category: "web", question: "Node.js framework often used for REST APIs that starts with E?", answer: "express" },
-  { category: "database", question: "SQL query to count all rows: SELECT ___(*) FROM table_name", answer: "count" },
-  { category: "database", question: "SQL keyword to remove duplicate rows from result set?", answer: "distinct" },
-  { category: "database", question: "Join that returns all rows from left table and matching rows from right?", answer: "left join" },
-  { category: "database", question: "Transaction command that permanently applies changes?", answer: "commit" },
-  { category: "database", question: "Transaction command that undoes uncommitted changes?", answer: "rollback" },
-  { category: "network", question: "Common private IPv4 range starting with 192.168 is classed as public or private?", answer: "private" },
-  { category: "network", question: "Loopback IPv4 address?", answer: "127.0.0.1" },
-  { category: "network", question: "Tool used to view route packets take across networks?", answer: "traceroute" },
-  { category: "network", question: "OSI layer responsible for end-to-end delivery and segmentation?", answer: "transport layer" },
-  { category: "git", question: "Command to see branches in git?", answer: "git branch" },
-  { category: "git", question: "Command to clone a remote repository?", answer: "git clone" },
-  { category: "git", question: "Command to fetch remote changes without merge?", answer: "git fetch" },
-  { category: "git", question: "Command to restore file from last commit in modern git?", answer: "git restore" },
+  { category: "coding", question: "Evaluate: 3 + 4 * 2", answer: "11" },
+  { category: "coding", question: "Evaluate: (10 - 4) * 3", answer: "18" },
+  { category: "coding", question: "In JavaScript: 5 === '5' gives true or false?", answer: "false" },
+  { category: "coding", question: "In JavaScript: 5 == '5' gives true or false?", answer: "true" },
+  { category: "coding", question: "If arr=[10,20,30,40], value of arr[2]?", answer: "30" },
+  { category: "coding", question: "Highest index in array of length 9?", answer: "8" },
+
+  { category: "html", question: "HTTP status code for conflict?", answer: "409" },
+  { category: "html", question: "HTTP status code for internal server error?", answer: "500" },
+  { category: "html", question: "Header used to send bearer token?", answer: "authorization" },
+  { category: "html", question: "Token prefix in Authorization header for JWT?", answer: "bearer" },
+
+  { category: "js", question: "Frontend library created by Meta for component UIs?", answer: "react" },
+  { category: "js", question: "Node.js web framework commonly used for APIs starting with E?", answer: "express" },
+  { category: "js", question: "Browser storage persistent across sessions?", answer: "localstorage" },
+  { category: "js", question: "Browser storage cleared on tab/session end?", answer: "sessionstorage" },
+
+  { category: "sql", question: "SQL keyword to remove duplicates in SELECT output?", answer: "distinct" },
+  { category: "sql", question: "Join returning all left rows plus matching right rows?", answer: "left join" },
+  { category: "sql", question: "Transaction command to permanently apply changes?", answer: "commit" },
+  { category: "sql", question: "Transaction command to undo uncommitted changes?", answer: "rollback" },
+
+  { category: "network", question: "192.168.x.x range is public or private?", answer: "private" },
+  { category: "network", question: "Tool to view network path hop-by-hop?", answer: "traceroute" },
+  { category: "network", question: "OSI layer handling end-to-end delivery?", answer: "transport layer" },
+
+  { category: "git", question: "Git command to list branches?", answer: "git branch" },
+  { category: "git", question: "Git command to clone repository?", answer: "git clone" },
+  { category: "git", question: "Git command to download remote changes without merge?", answer: "git fetch" },
+  { category: "git", question: "Modern git command to restore file content?", answer: "git restore" },
+
   { category: "os", question: "Linux command to change directory?", answer: "cd" },
-  { category: "os", question: "Linux command to print file contents?", answer: "cat" },
-  { category: "os", question: "Linux command to show running processes (traditional command)?", answer: "ps" },
-  { category: "security", question: "Security test that simulates real attacker behavior is called?", answer: "penetration testing" },
-  { category: "security", question: "Secret used with one-time code apps in MFA is called?", answer: "shared secret" },
-  { category: "ai", question: "Field focused on training models from data is called?", answer: "machine learning" },
-  { category: "ai", question: "Neural network type commonly used for images (abbrev)?", answer: "cnn" },
-  { category: "ai", question: "Metric that measures correct positives among predicted positives?", answer: "precision" },
-  { category: "ai", question: "Metric that measures correct positives among actual positives?", answer: "recall" },
+  { category: "os", question: "Linux command to print file content?", answer: "cat" },
+  { category: "os", question: "Traditional Linux command to show running processes?", answer: "ps" },
+
+  { category: "security", question: "Security test simulating real attacker behavior is called?", answer: "penetration testing|pentest" },
+  { category: "security", question: "Three-letter framework: Confidentiality, Integrity, Availability?", answer: "cia triad" },
+
   { category: "python", question: "Output of Python: 3 // 2", answer: "1" },
   { category: "python", question: "Output of Python: 'A' * 3", answer: "aaa" },
-  { category: "python", question: "Python keyword used to define anonymous function?", answer: "lambda" },
-  { category: "java", question: "In Java, method entry point is named?", answer: "main" },
-  { category: "java", question: "Java primitive type for 64-bit integer?", answer: "long" },
-  { category: "java", question: "In Java, keyword used to prevent method overriding?", answer: "final" },
-  { category: "c", question: "In C, array index starts from?", answer: "0" },
-  { category: "c", question: "In C, operator used to get address of variable?", answer: "&" },
-  { category: "c", question: "In C, keyword for conditional branch alternative to if?", answer: "else" },
-  { category: "coding", question: "Big-O of accessing element by index in array/list?", answer: "o(1)" }
+  { category: "python", question: "Python keyword to define anonymous function?", answer: "lambda" },
+
+  { category: "java", question: "Java program entry-point method name?", answer: "main" },
+  { category: "java", question: "Java primitive for 64-bit integer?", answer: "long" },
+  { category: "java", question: "Java keyword to prevent method overriding?", answer: "final" },
+
+  { category: "c", question: "In C, array indexing starts at?", answer: "0" },
+  { category: "c", question: "In C, operator to get variable address?", answer: "&" },
+
+  { category: "india-tech", question: "Indian mission focused on semiconductor ecosystem approved in 2021?", answer: "semicon india programme|semicon india" },
+  { category: "india-tech", question: "National super app for public digital infrastructure APIs by NPCI foundation layer?", answer: "upi" }
 ];
 
 const d5Bank: BankEntry[] = [
-  { category: "js", question: "Output of JavaScript expression: Math.floor(7.9)", answer: "7" },
+  { category: "js", question: "Output of JavaScript: Math.floor(7.9)", answer: "7" },
   { category: "js", question: "Output of JavaScript: [1,2,3].length", answer: "3" },
   { category: "js", question: "Output of JavaScript: 'Tech'.toLowerCase()", answer: "tech" },
-  { category: "js", question: "Output of JavaScript: Number('42') + 8", answer: "50" },
   { category: "js", question: "Value of 2 ** 5 in JavaScript", answer: "32" },
-  { category: "dsa", question: "Worst-case time complexity of quicksort?", answer: "o(n^2)" },
-  { category: "dsa", question: "Average time complexity of quicksort?", answer: "o(n log n)" },
-  { category: "dsa", question: "Time complexity of hash table average lookup?", answer: "o(1)" },
-  { category: "dsa", question: "Data structure typically used for BFS traversal?", answer: "queue" },
-  { category: "dsa", question: "Data structure typically used for DFS traversal?", answer: "stack" },
-  { category: "database", question: "SQL clause order: SELECT ... FROM ... WHERE ... ___ ...", answer: "group by" },
-  { category: "database", question: "SQL function to get maximum value in a column?", answer: "max" },
-  { category: "database", question: "SQL function to get minimum value in a column?", answer: "min" },
-  { category: "database", question: "Normal form that removes transitive dependencies?", answer: "3nf|third normal form" },
-  { category: "database", question: "Property ensuring committed transactions survive power loss?", answer: "durability" },
-  { category: "network", question: "Protocol used to securely transfer files over SSH?", answer: "sftp" },
-  { category: "network", question: "Name resolution failure is usually related to which service?", answer: "dns" },
-  { category: "network", question: "TLS primarily provides encryption at which OSI layer context for web traffic?", answer: "application layer" },
-  { category: "network", question: "If subnet mask is /30, how many total IPv4 addresses are in that subnet?", answer: "4" },
-  { category: "network", question: "If subnet mask is /24, how many total IPv4 addresses are in that subnet?", answer: "256" },
-  { category: "git", question: "Command to move HEAD to previous commit without deleting changes in working tree (mixed reset)?", answer: "git reset HEAD~1" },
-  { category: "git", question: "Command to show one-line commit history graph style?", answer: "git log --oneline" },
-  { category: "git", question: "Git command to apply commits from another branch onto current branch one by one?", answer: "git rebase" },
-  { category: "git", question: "Git command to show who changed each line in file?", answer: "git blame" },
-  { category: "security", question: "Type of vulnerability where untrusted input alters SQL query meaning?", answer: "sql injection|sqli" },
-  { category: "security", question: "Type of attack where script is injected into trusted web page?", answer: "cross site scripting|xss" },
-  { category: "security", question: "Security acronym for Confidentiality, Integrity, Availability?", answer: "cia triad" },
-  { category: "security", question: "Hashing algorithm currently considered insecure due to collisions and often avoided?", answer: "md5" },
-  { category: "cloud", question: "AWS object storage service name?", answer: "s3" },
-  { category: "cloud", question: "Google Cloud managed Kubernetes service abbreviation?", answer: "gke" },
-  { category: "cloud", question: "Azure managed Kubernetes service abbreviation?", answer: "aks" },
-  { category: "cloud", question: "Practice of shipping code changes automatically after passing tests?", answer: "continuous deployment" },
-  { category: "cloud", question: "Practice of frequently merging small code changes to main branch?", answer: "continuous integration" },
-  { category: "ai", question: "Model output quality generally evaluated on unseen data called?", answer: "test set" },
-  { category: "ai", question: "Problem where model learns training data too well and performs poorly on new data?", answer: "overfitting" },
-  { category: "ai", question: "Technique to reduce overfitting by dropping neurons during training?", answer: "dropout" },
-  { category: "python", question: "Output of Python: bool([])", answer: "false" },
+  { category: "js", question: "JavaScript method to asynchronously fetch HTTP resources in browser/runtime?", answer: "fetch" },
+
+  { category: "sql", question: "SQL clause order: SELECT ... FROM ... WHERE ... ___ ...", answer: "group by" },
+  { category: "sql", question: "SQL function to get maximum value?", answer: "max" },
+  { category: "sql", question: "SQL function to get minimum value?", answer: "min" },
+  { category: "sql", question: "ACID property ensuring committed data survives crash?", answer: "durability" },
+  { category: "sql", question: "Vulnerability where malicious input alters SQL query logic?", answer: "sql injection|sqli" },
+
+  { category: "network", question: "Protocol to securely transfer files over SSH?", answer: "sftp" },
+  { category: "network", question: "If subnet mask is /30, total IPv4 addresses in subnet?", answer: "4" },
+  { category: "network", question: "If subnet mask is /24, total IPv4 addresses in subnet?", answer: "256" },
+  { category: "network", question: "Service usually responsible for name resolution failures?", answer: "dns" },
+  { category: "network", question: "Network layer protocol carrying packets between hosts?", answer: "ip" },
+
+  { category: "git", question: "Git command to apply commits from one branch onto another linearly?", answer: "git rebase" },
+  { category: "git", question: "Git command to show compact history line-by-line?", answer: "git log --oneline" },
+  { category: "git", question: "Git command to show who last changed each line in a file?", answer: "git blame" },
+  { category: "git", question: "Git command to pull remote changes and merge?", answer: "git pull" },
+  { category: "git", question: "Git command to create and switch to branch feature-x?", answer: "git checkout -b feature-x" },
+
+  { category: "os", question: "Process identifier is abbreviated as?", answer: "pid" },
+  { category: "os", question: "Scheduler strategy giving fixed time slices to each process?", answer: "round robin" },
+  { category: "os", question: "Memory error due to illegal access often called?", answer: "segmentation fault|segfault" },
+  { category: "os", question: "Linux command to show process tree?", answer: "pstree" },
+  { category: "os", question: "Linux command to search text in files recursively (modern fast tool)?", answer: "rg|ripgrep" },
+
   { category: "python", question: "Python built-in to iterate with index and value?", answer: "enumerate" },
-  { category: "python", question: "Python method to add item at end of list?", answer: "append" },
-  { category: "java", question: "Java keyword used to implement an interface?", answer: "implements" },
-  { category: "java", question: "Java exception type at top of throwable hierarchy branch for recoverable conditions?", answer: "exception" },
+  { category: "python", question: "Python list method to append element at end?", answer: "append" },
+  { category: "python", question: "Output of Python: bool([])", answer: "false" },
+
+  { category: "java", question: "Java keyword used to implement interface?", answer: "implements" },
   { category: "java", question: "Java collection class for key-value mapping?", answer: "hashmap|map" },
-  { category: "c", question: "In C, standard function to compute string length?", answer: "strlen" },
-  { category: "c", question: "In C, file extension typically used for header files?", answer: ".h|h" },
-  { category: "c", question: "In C, function that returns integer from string conversion?", answer: "atoi" },
-  { category: "coding", question: "Traversal type that goes level by level in a tree?", answer: "bfs|breadth first search" },
-  { category: "coding", question: "Traversal type that goes deep before backtracking in a tree/graph?", answer: "dfs|depth first search" },
-  { category: "coding", question: "Technique where function calls itself to solve smaller instance?", answer: "recursion" }
+
+  { category: "c", question: "C function to return string length?", answer: "strlen" },
+  { category: "c", question: "C header file extension?", answer: ".h|h" },
+  { category: "c", question: "C function converting numeric string to integer (basic)?", answer: "atoi" },
+
+  { category: "security", question: "Attack injecting scripts into trusted web pages is called?", answer: "cross site scripting|xss" },
+  { category: "security", question: "Hash algorithm widely avoided due to practical collisions?", answer: "md5" },
+
+  { category: "coding", question: "Traversal that visits nodes level by level?", answer: "bfs|breadth first search" },
+  { category: "coding", question: "Traversal that goes deep before backtracking?", answer: "dfs|depth first search" },
+  { category: "coding", question: "Technique where function calls itself to solve smaller instance?", answer: "recursion" },
+
+  { category: "india-tech", question: "As of 2024-2025, India's flagship retail CBDC pilots are for which central bank digital currency family?", answer: "digital rupee|e-rupee|e?" },
+  { category: "india-tech", question: "UPI 123PAY was introduced mainly to support payments on which type of phones?", answer: "feature phones|feature phone" }
 ];
 
 function answerFormatHint(answer: string): string {
@@ -283,7 +271,7 @@ function answerFormatHint(answer: string): string {
   const token = variants[0] ?? "";
   if (/^\d+(\.\d+)?$/.test(token)) return "number only";
   if (token.includes(" ")) return "lowercase phrase";
-  if (token.startsWith("git ") || token.includes(".") || token.includes("/") || token.includes("#")) {
+  if (token.startsWith("git ") || token.includes(".") || token.includes("/") || token.includes("#") || token.includes("-")) {
     return "exact token or command";
   }
   return "single word or token";
@@ -298,110 +286,110 @@ function curatedQuestionHints(entry: BankEntry): {
 } {
   const q = entry.question.toLowerCase();
   const a = entry.answer.toLowerCase();
-  const primaryAnswer = a.split("|")[0]?.trim() ?? a.trim();
   const variants = a.split("|").map((v) => v.trim()).filter(Boolean);
   const variantHint = variants.length > 1 ? `Accepted variants: ${variants.join(" / ")}.` : "Use one exact standard token.";
   const formatHint = `Expected format: ${answerFormatHint(entry.answer)}.`;
 
-  if (q.includes("stands for")) {
+  if (q.includes("stands for") || q.includes("abbreviated as") || q.includes("abbreviation")) {
     return {
-      primary: "Expand the acronym completely.",
-      secondary: "Write the full phrase in lowercase words, not short form.",
-      tertiary: "Use all words; avoid abbreviations.",
+      primary: "Expand or identify the official acronym correctly.",
+      secondary: "Use the standard textbook/government expansion or short form.",
+      tertiary: "Do not add explanation text.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (q.includes("status code") || q.includes("how many") || /^\d+/.test(primaryAnswer)) {
+  if (q.includes("in 2023") || q.includes("in 2016") || q.includes("in 2021") || q.includes("as of")) {
+    return {
+      primary: "Question is time-anchored; answer from the stated period.",
+      secondary: "Use the named program/mission from that specific context.",
+      tertiary: "Return only the program/mission name token.",
+      quaternary: formatHint,
+      quinary: variantHint
+    };
+  }
+  if (q.includes("status code") || q.includes("how many") || /^\d+/.test(variants[0] ?? "")) {
     return {
       primary: "Numeric response required.",
-      secondary: "Use digits only; no words, no symbols unless explicitly asked.",
-      tertiary: "Do not include units or punctuation.",
+      secondary: "Use digits only; no words.",
+      tertiary: "No units or extra punctuation.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (q.includes("true/false") || q.includes("yes or no")) {
+  if (q.includes("true or false") || q.includes("yes/no") || q.includes("yes or no")) {
     return {
-      primary: "Boolean-style single token expected.",
-      secondary: "Use exactly one word: true/false or yes/no as requested.",
-      tertiary: "No explanation text after the token.",
+      primary: "Boolean token expected.",
+      secondary: "Submit exactly one token: true/false or yes/no as asked.",
+      tertiary: "No explanation after the token.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
   if (q.includes("without < >")) {
     return {
-      primary: "HTML/token only expected.",
-      secondary: "Do not include angle brackets, quotes, or explanation.",
-      tertiary: "Submit only the tag/selector token.",
+      primary: "Submit tag/token only.",
+      secondary: "Do not include angle brackets.",
+      tertiary: "No sentence text.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (q.includes("output of") || q.startsWith("evaluate")) {
+  if (q.startsWith("evaluate") || q.includes("output of") || q.includes("value of")) {
     return {
-      primary: "Evaluate exactly; result shape is fixed.",
-      secondary: "Return only the computed final value/token.",
-      tertiary: "No intermediate steps in answer field.",
+      primary: "Compute the exact final output.",
+      secondary: "Submit only final value/token.",
+      tertiary: "No intermediate steps.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (primaryAnswer.startsWith("git ")) {
+  if (variants[0]?.startsWith("git ")) {
     return {
       primary: "Full git command expected.",
-      secondary: "Include git subcommand and required flags/args.",
-      tertiary: "Spacing and flag order should be command-valid.",
+      secondary: "Include required subcommand and flags.",
+      tertiary: "Spacing must match valid command syntax.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (primaryAnswer.includes("|")) {
+  if (entry.category === "sql") {
     return {
-      primary: "Multiple accepted variants exist.",
-      secondary: "Any one standard variant is valid.",
-      tertiary: "Use one full variant only.",
+      primary: "SQL keyword/concept expected.",
+      secondary: "Use canonical SQL term only.",
+      tertiary: "No sentence explanation.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (entry.category === "database" && q.includes("normal form")) {
+  if (entry.category === "network") {
     return {
-      primary: "Normalization term expected.",
-      secondary: "Short form (e.g., 2NF/3NF) or full name is accepted.",
-      tertiary: "Do not write extra theory text.",
+      primary: "Networking protocol/port/layer token expected.",
+      secondary: "Use exact standard networking term.",
+      tertiary: "Keep answer minimal and precise.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (entry.category === "network" && (q.includes("protocol") || q.includes("port"))) {
+  if (entry.category === "india-tech") {
     return {
-      primary: "Networking token expected.",
-      secondary: "Use exact protocol/port token, lowercase unless numeric.",
-      tertiary: "No sentence form; token only.",
+      primary: "Think of official Indian digital/public-tech platforms or missions.",
+      secondary: "Use the recognized short name or formal mission/platform name.",
+      tertiary: "Avoid generic descriptions.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (entry.category === "security") {
-    return {
-      primary: "Canonical security term expected.",
-      secondary: "Use the standard term, not a long explanation sentence.",
-      tertiary: "Prefer textbook/interview terminology.",
-      quaternary: formatHint,
-      quinary: variantHint
-    };
-  }
-  if (entry.category === "python" || entry.category === "java" || entry.category === "c" || entry.category === "js") {
+  if (["python", "java", "c", "js", "html", "css"].includes(entry.category)) {
     return {
       primary: "Language token/keyword/API expected.",
       secondary: "Exact spelling and symbols matter.",
-      tertiary: "Use lowercase where language convention applies.",
+      tertiary: "Submit only the token/keyword.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
+
   return {
     primary: `Target concept is in ${entry.category}.`,
     secondary: "Return the shortest exact technical term matching the concept.",

@@ -78,7 +78,6 @@ type MilestoneReward = {
   badge: string;
 };
 
-type LanguageCode = "en" | "hi";
 
 type ScanResponse =
   | {
@@ -266,9 +265,7 @@ export function GamePage() {
   const [storyChapter, setStoryChapter] = useState<string | null>(null);
   const [rapidCategory, setRapidCategory] = useState<RapidCategoryState>(null);
   const [milestoneReward, setMilestoneReward] = useState<MilestoneReward | null>(null);
-  const [language, setLanguage] = useState<LanguageCode>("en");
   const [offlineAssist, setOfflineAssist] = useState(false);
-  const [safeModeProfile, setSafeModeProfile] = useState(false);
   const [serverHealth, setServerHealth] = useState<{ online: boolean; paused: boolean; checkedAt: number | null }>({
     online: true,
     paused: false,
@@ -282,12 +279,6 @@ export function GamePage() {
   const [tutorialStep, setTutorialStep] = useState(1);
   const [tutorialSeconds, setTutorialSeconds] = useState(60);
   const [actionBusy, setActionBusy] = useState<null | "submit" | "hint" | "ability" | "rapid">(null);
-  const [accessibility, setAccessibility] = useState({
-    highContrast: false,
-    largeText: false,
-    dyslexicFont: false,
-    reducedMotion: false
-  });
   const scanInFlight = useRef(false);
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
   const rapidExpirySyncRef = useRef(false);
@@ -568,7 +559,7 @@ export function GamePage() {
     };
     const id = window.setInterval(() => {
       void syncTeamStatus();
-    }, 3000);
+    }, 7000);
     return () => {
       mounted = false;
       window.clearInterval(id);
@@ -593,7 +584,7 @@ export function GamePage() {
     void checkWinnerReveal();
     const id = window.setInterval(() => {
       void checkWinnerReveal();
-    }, 4_000);
+    }, 8_000);
 
     return () => {
       mounted = false;
@@ -602,36 +593,19 @@ export function GamePage() {
   }, [navigate, team?.status]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("scan_accessibility");
-    if (!stored) return;
-    try {
-      setAccessibility(JSON.parse(stored));
-    } catch {
-      // ignore malformed local state
-    }
+    document.documentElement.classList.remove(
+      "a11y-high-contrast",
+      "a11y-large-text",
+      "a11y-dyslexic",
+      "a11y-reduced-motion"
+    );
+    localStorage.removeItem("scan_accessibility");
+    localStorage.removeItem("scan_safe_mode");
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("scan_safe_mode");
-    if (stored === "1") {
-      setSafeModeProfile(true);
-      setSimpleMode(true);
-      setAccessibility({ highContrast: true, largeText: true, dyslexicFont: false, reducedMotion: true });
-      audioManager.setMuted(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("scan_accessibility", JSON.stringify(accessibility));
-    document.documentElement.classList.toggle("a11y-high-contrast", accessibility.highContrast);
-    document.documentElement.classList.toggle("a11y-large-text", accessibility.largeText);
-    document.documentElement.classList.toggle("a11y-dyslexic", accessibility.dyslexicFont);
-    document.documentElement.classList.toggle("a11y-reduced-motion", accessibility.reducedMotion);
-  }, [accessibility]);
-
-  useEffect(() => {
-    localStorage.setItem("scan_safe_mode", safeModeProfile ? "1" : "0");
-  }, [safeModeProfile]);
+    document.documentElement.classList.toggle("perf-lite", simpleMode);
+  }, [simpleMode]);
 
   useEffect(() => {
     const badges = localStorage.getItem("scan_milestone_badges");
@@ -647,31 +621,17 @@ export function GamePage() {
     localStorage.setItem("scan_milestone_badges", JSON.stringify(milestoneBadges));
   }, [milestoneBadges]);
 
-  useEffect(() => {
-    const lowPowerHeuristic = (navigator.hardwareConcurrency ?? 4) <= 4;
-    if (lowPowerHeuristic) setSimpleMode(true);
-  }, []);
-
-  const t = useMemo(() => {
-    if (language === "hi") {
-      return {
-        missionFlow: "Mission Flow (Anivarya Kram)",
-        offline: "Offline Sahayata Mode",
-        offlineBody:
-          "Network asthir hai. Host se satyapan lekar aage badhein aur agla manual checkpoint note karein.",
-        startCamera: "Camera Shuru Karein",
-        stopCamera: "Camera Band Karein"
-      };
-    }
-    return {
+  const t = useMemo(
+    () => ({
       missionFlow: "Mission Flow (Required Sequence)",
       offline: "Offline Assist Mode",
       offlineBody:
         "Network is unstable. Coordinate with host fallback protocol and note the next manual checkpoint.",
       startCamera: "Start Camera",
       stopCamera: "Stop Camera"
-    };
-  }, [language]);
+    }),
+    []
+  );
 
   const onScan = useCallback(async (code: string) => {
     if (tutorialOpen) return;
@@ -724,8 +684,8 @@ export function GamePage() {
 
         if (scanData.type === "trap") {
           audioManager.play("trap_alarm");
-          setFeedback(scanData.message);
-          setActivityFeed((prev) => [`Trap event: ${scanData.message}`, ...prev].slice(0, 10));
+          setFeedback("Trap interaction detected. Resolve the active challenge.");
+          setActivityFeed((prev) => [`Trap interaction registered`, ...prev].slice(0, 10));
           setScanEnabled(false);
           return;
         }
@@ -752,7 +712,7 @@ export function GamePage() {
       setDifficulty(scanData.room.difficulty_level);
       setRoomCode(scanData.room.room_code);
       setClueStyle(scanData.clue_style ?? null);
-      setFeedback(scanData.message);
+      setFeedback("Challenge loaded. Submit one precise answer.");
       setActivityFeed((prev) => [`Scan success: ${roomNumber}`, ...prev].slice(0, 10));
       setScanEnabled(false);
     } catch (err: unknown) {
@@ -792,8 +752,15 @@ export function GamePage() {
       setRequestFailures(0);
       setOfflineAssist(false);
       setTeam(response.data.team);
-      setFeedback(response.data.message);
-      setActivityFeed((prev) => [`Submission: ${response.data.message}`, ...prev].slice(0, 10));
+      const neutralFeedback = response.data.completed
+        ? response.data.message
+        : response.data.rapid_fire_active
+          ? "Response locked. Rapid prompt refreshed."
+          : response.data.rapid_fire_ready
+            ? "Checkpoint complete. Follow final key instructions."
+            : "Response locked. Decode your next clue.";
+      setFeedback(neutralFeedback);
+      setActivityFeed((prev) => [`Submission recorded`, ...prev].slice(0, 10));
       if (response.data.active_pulse) setActivePulse(response.data.active_pulse);
       if (response.data.latest_broadcast) setBroadcast(response.data.latest_broadcast);
       if (response.data.runes_collected !== undefined) setRunesCollected(response.data.runes_collected);
@@ -1001,11 +968,6 @@ export function GamePage() {
               Sync {new Date(serverHealth.checkedAt).toLocaleTimeString()}
             </span>
           )}
-          {safeModeProfile && (
-            <span className="rounded-full border border-fuchsia-300/40 bg-fuchsia-500/10 px-2 py-1 text-fuchsia-100">
-              Safe Mode Profile ON
-            </span>
-          )}
         </div>
         <p className="mt-2 text-[11px] text-amber-100">
           Device rule: multi-device session enabled. You can continue on another device without forced re-login.
@@ -1159,7 +1121,7 @@ export function GamePage() {
       </section>
       )}
 
-      <section className="mb-3 grid gap-2 md:grid-cols-7">
+      <section className="mb-3 grid gap-2 md:grid-cols-4">
         <button
           className="ghost-btn text-xs"
           onClick={() => {
@@ -1169,49 +1131,14 @@ export function GamePage() {
         >
           {simpleMode ? "Enable Full HUD" : "Performance Mode"}
         </button>
-        <button className="ghost-btn text-xs" onClick={() => { audioManager.play("ui_toggle"); setAccessibility((v) => ({ ...v, highContrast: !v.highContrast })); }}>Contrast</button>
-        <button className="ghost-btn text-xs" onClick={() => { audioManager.play("ui_toggle"); setAccessibility((v) => ({ ...v, largeText: !v.largeText })); }}>Large Text</button>
-        <button className="ghost-btn text-xs" onClick={() => { audioManager.play("ui_toggle"); setAccessibility((v) => ({ ...v, dyslexicFont: !v.dyslexicFont })); }}>Readable Font</button>
-        <button className="ghost-btn text-xs" onClick={() => { audioManager.play("ui_toggle"); setAccessibility((v) => ({ ...v, reducedMotion: !v.reducedMotion })); }}>Reduce Motion</button>
-      </section>
-
-      <section className="mb-3 grid gap-2 md:grid-cols-4">
-        <button className="ghost-btn text-xs" onClick={() => setLanguage("en")}>English</button>
-        <button className="ghost-btn text-xs" onClick={() => setLanguage("hi")}>Hindi</button>
-        <button
-          className="ghost-btn text-xs"
-          onClick={() => setAccessibility({ highContrast: true, largeText: true, dyslexicFont: false, reducedMotion: true })}
-        >
-          Accessibility Preset
-        </button>
         <button
           className="ghost-btn text-xs"
           onClick={() => {
             setSimpleMode(true);
-            setAccessibility((prev) => ({ ...prev, reducedMotion: true }));
+            setFeedback("Low-end mode enabled");
           }}
         >
           Low-End Device Mode
-        </button>
-        <button
-          className="ghost-btn text-xs"
-          onClick={() => {
-            setSafeModeProfile((prev) => {
-              const next = !prev;
-              if (next) {
-                setSimpleMode(true);
-                setScanEnabled(false);
-                setAccessibility({ highContrast: true, largeText: true, dyslexicFont: false, reducedMotion: true });
-                audioManager.setMuted(true);
-                setFeedback("Safe mode profile enabled for lag-resistant gameplay.");
-              } else {
-                setFeedback("Safe mode profile disabled.");
-              }
-              return next;
-            });
-          }}
-        >
-          {safeModeProfile ? "Disable Safe Mode" : "Enable Safe Mode"}
         </button>
         <button
           className="ghost-btn text-xs"
@@ -1315,15 +1242,8 @@ export function GamePage() {
               {nextTarget.layer_one && <p className="mt-1 text-xs text-amber-200">Layer 1: {nextTarget.layer_one}</p>}
               {nextTarget.layer_two && <p className="mt-1 text-xs text-cyan-200">Layer 2: {nextTarget.layer_two}</p>}
               <p className="mt-1 text-xs text-slate-200">{nextTarget.clue_text}</p>
-              <p className="mt-1 text-xs text-slate-400">{nextTarget.decode_hint}</p>
               {Array.isArray(nextTarget.clue_hints) && nextTarget.clue_hints.length > 0 && (
-                <div className="mt-2 rounded-lg border border-white/10 bg-black/20 p-2">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-cyan-200">Clue Hints</p>
-                  <p className="mt-1 text-[11px] text-slate-300">{nextTarget.clue_hints[0]}</p>
-                  {nextTarget.clue_hints.length > 1 && (
-                    <p className="mt-1 text-[10px] text-slate-400">Use Hint action to unlock deeper clue stages.</p>
-                  )}
-                </div>
+                <p className="mt-1 text-[10px] text-slate-400">Use Hint action to unlock staged clue hints.</p>
               )}
               {nextTarget.unlock_token && <p className="mt-1 text-[10px] text-slate-500">Unlock token: {nextTarget.unlock_token}</p>}
             </>
@@ -1386,7 +1306,7 @@ export function GamePage() {
       </section>
 
       <section className="mb-4 grid gap-3 lg:grid-cols-3">
-        <article className="glass-card hud-panel rounded-3xl p-4">
+        <article className="glass-card hud-panel cinematic-sweep rounded-3xl p-4">
           <div className="mb-3 grid grid-cols-2 gap-2">
             <button className={scanEnabled ? "ghost-btn" : "apple-btn"} onClick={() => { audioManager.play("ui_toggle"); setScanEnabled((v) => !v); }} disabled={team?.phase === "rapid_fire" || tutorialOpen}>
               {scanEnabled ? t.stopCamera : t.startCamera}
@@ -1398,7 +1318,7 @@ export function GamePage() {
           <ScannerPanel onDetected={onScan} enabled={scanEnabled && team?.phase !== "rapid_fire" && !tutorialOpen} />
         </article>
 
-        <article className="glass-card hud-panel rounded-3xl p-4 lg:col-span-2">
+        <article className="glass-card hud-panel hero-glow rounded-3xl p-4 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-xs uppercase tracking-[0.25em] text-slate-300">Challenge</p>
             <div className="flex gap-2">

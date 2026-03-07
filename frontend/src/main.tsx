@@ -5,12 +5,6 @@ import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./index.css";
 
-const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-
-if (prefersReducedMotion) {
-  document.documentElement.classList.add("perf-lite");
-}
-
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ErrorBoundary>
