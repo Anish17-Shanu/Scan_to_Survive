@@ -804,10 +804,20 @@ export function GamePage() {
         setQuestion(response.data.rapid_question?.question_text ?? "Rapid question complete");
         setNextTarget(null);
       } else {
+        const nextClue = response.data.next_room_clue ?? null;
         setQuestion(null);
         setDifficulty(null);
         setRoomCode("");
-        setNextTarget(response.data.next_room_clue ?? null);
+        setNextTarget(nextClue);
+        // Safety sync: if backend response missed clue packet, refresh canonical state.
+        if (!nextClue && !response.data.completed) {
+          try {
+            const resync = await api.post<StartResponse>("/game/start");
+            if (resync.data.next_room_clue) setNextTarget(resync.data.next_room_clue);
+          } catch {
+            // keep current UI state; submit was already recorded.
+          }
+        }
       }
 
       setAnswer("");
@@ -1250,11 +1260,33 @@ export function GamePage() {
               {nextTarget.layer_one && <p className="mt-1 text-xs text-amber-200">Layer 1: {nextTarget.layer_one}</p>}
               {nextTarget.layer_two && <p className="mt-1 text-xs text-cyan-200">Layer 2: {nextTarget.layer_two}</p>}
               <p className="mt-1 text-xs text-slate-200">{nextTarget.clue_text}</p>
+              <p className="mt-1 text-xs text-slate-400">{nextTarget.decode_hint}</p>
               {Array.isArray(nextTarget.clue_hints) && nextTarget.clue_hints.length > 0 && (
                 <p className="mt-1 text-[10px] text-slate-400">Use Hint action to unlock staged clue hints.</p>
               )}
               {nextTarget.unlock_token && <p className="mt-1 text-[10px] text-slate-500">Unlock token: {nextTarget.unlock_token}</p>}
             </>
+          )}
+          {!nextTarget && team?.status === "active" && team?.phase === "main" && (
+            <button
+              className="ghost-btn mt-2 text-xs"
+              onClick={async () => {
+                try {
+                  const resync = await api.post<StartResponse>("/game/start");
+                  if (resync.data.next_room_clue) {
+                    setNextTarget(resync.data.next_room_clue);
+                    setFeedback("Clue packet synced.");
+                  } else {
+                    setFeedback("Clue packet not available yet. Complete current checkpoint.");
+                  }
+                } catch {
+                  setFeedback("Clue sync failed. Retry in a moment.");
+                }
+              }}
+              disabled={tutorialOpen}
+            >
+              Sync Clue Packet
+            </button>
           )}
           <div className="my-3 h-px bg-white/10" />
           <p className="text-xs text-slate-300">Stats</p>
