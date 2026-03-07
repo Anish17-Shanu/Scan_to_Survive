@@ -82,7 +82,14 @@ gameRouter.post(
   asyncHandler(enforceGameTimeout),
   asyncHandler(abilityController)
 );
-gameRouter.get("/me-status", rateLimit(10_000, 90), requireAuth, asyncHandler(requireTeam), asyncHandler(teamStatusController));
+gameRouter.get(
+  "/me-status",
+  rateLimit(10_000, 90),
+  requireAuth,
+  asyncHandler(requireTeam),
+  asyncHandler(enforceGameTimeout),
+  asyncHandler(teamStatusController)
+);
 gameRouter.get("/leaderboard", rateLimit(10_000, 60), requireAuth, asyncHandler(publicLeaderboardController));
 gameRouter.get("/winner-display", rateLimit(10_000, 90), asyncHandler(publicWinnerDisplayController));
 gameRouter.get("/spectator", rateLimit(10_000, 90), asyncHandler(publicSpectatorController));

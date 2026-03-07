@@ -361,6 +361,10 @@ export function GamePage() {
       setNextTarget(response.data.next_room_clue ?? null);
     } catch (err: unknown) {
       const { status, message } = parseApiError(err);
+      if (status === 410) {
+        navigate("/finish", { replace: true });
+        return;
+      }
       if (status === 401) {
         clearAuth();
         navigate("/login", { replace: true });
@@ -551,6 +555,10 @@ export function GamePage() {
         }
       } catch (err: unknown) {
         const { status } = parseApiError(err);
+        if (status === 410) {
+          navigate("/finish", { replace: true });
+          return;
+        }
         if (status === 401) {
           clearAuth();
           navigate("/login", { replace: true });
