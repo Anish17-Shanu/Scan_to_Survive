@@ -207,7 +207,7 @@ const STORY_ARCS = [
 
 export function GamePage() {
   const navigate = useNavigate();
-  const [simpleMode, setSimpleMode] = useState(true);
+  const [simpleMode, setSimpleMode] = useState(false);
   const [team, setTeam] = useState<TeamState | null>(null);
   const [scanEnabled, setScanEnabled] = useState(false);
   const [question, setQuestion] = useState<string | null>(null);

@@ -124,6 +124,29 @@ export function LandingPage() {
           </div>
         </article>
 
+        <section className="holo-pilot-grid grid gap-4 md:grid-cols-2">
+          <article className="operator-card rounded-3xl p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">NEXUS-7</p>
+                <p className="mt-1 text-sm text-slate-200">Route AI projecting scan-safe movement path.</p>
+              </div>
+              <div className="avatar-core avatar-core-cyan" />
+            </div>
+            <p className="terminal-line mt-3 text-xs text-cyan-100">Signal lock achieved. Awaiting first QR scan.</p>
+          </article>
+          <article className="operator-card rounded-3xl p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-emerald-200">AMIPHORIA-OS</p>
+                <p className="mt-1 text-sm text-slate-200">Puzzle relay active. Answer formatting monitor online.</p>
+              </div>
+              <div className="avatar-core avatar-core-emerald" />
+            </div>
+            <p className="terminal-line mt-3 text-xs text-cyan-100">Decode channel stable. Keep runner/navigator sync.</p>
+          </article>
+        </section>
+
         <section className="grid gap-6 lg:grid-cols-5">
           <article className="glass-card fade-rise rounded-[2rem] p-7 lg:col-span-3">
             <h2 className="text-2xl font-semibold">Gameplay Workflow</h2>
@@ -171,6 +194,11 @@ export function LandingPage() {
                 <span className="qr-cell qr-cell-delay-1" />
                 <span className="qr-cell qr-cell-delay-2" />
                 <span className="qr-cell qr-cell-delay-3" />
+              </div>
+              <div className="holo-reticle mt-4" aria-hidden="true">
+                <span className="holo-reticle-ring holo-reticle-ring-a" />
+                <span className="holo-reticle-ring holo-reticle-ring-b" />
+                <span className="holo-reticle-sweep" />
               </div>
               <p className="mt-3 text-xs text-slate-300">
                 Visual cue: room QR scan events propagate as challenge sync pulses across the team workflow.

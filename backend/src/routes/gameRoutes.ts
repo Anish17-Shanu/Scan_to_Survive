@@ -23,7 +23,8 @@ export const gameRouter = Router();
 
 gameRouter.post(
   "/start",
-  rateLimit(30_000, 20),
+  // Allow very large synchronized starts while teamThrottle still protects each team session.
+  rateLimit(30_000, 500),
   requireAuth,
   asyncHandler(requireTeam),
   asyncHandler(teamThrottle(30_000, 12, "start")),

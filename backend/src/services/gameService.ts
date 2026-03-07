@@ -363,24 +363,24 @@ function buildFinalKeyBrief(
   const picked = pickFinalKeyAnchors(eventId, rooms);
   return {
     nexus: {
-      room_number: null,
+      room_number: picked.nexus?.room_number ?? null,
       floor: picked.nexus?.floor ?? null,
       clue: picked.nexus
-        ? `NEXUS shard signal is strongest on floor ${picked.nexus.floor ?? "?"}. Follow faction markers to locate it.`
+        ? `NEXUS shard is at room ${picked.nexus.room_number} on floor ${picked.nexus.floor ?? "?"}.`
         : "NEXUS shard location unavailable."
     },
     amiphoria: {
-      room_number: null,
+      room_number: picked.amiphoria?.room_number ?? null,
       floor: picked.amiphoria?.floor ?? null,
       clue: picked.amiphoria
-        ? `AMIPHORIA shard resonance is strongest on floor ${picked.amiphoria.floor ?? "?"}. Decode nearby clue signals.`
+        ? `AMIPHORIA shard is at room ${picked.amiphoria.room_number} on floor ${picked.amiphoria.floor ?? "?"}.`
         : "AMIPHORIA shard location unavailable."
     },
     rapid_gate: {
-      room_number: null,
+      room_number: picked.rapidGate?.room_number ?? null,
       floor: picked.rapidGate?.floor ?? null,
       clue: picked.rapidGate
-        ? `After both shards, the Rapid Gate can be found on floor ${picked.rapidGate.floor ?? "?"} at a marked checkpoint.`
+        ? `After both shards, scan the Fire QR at room ${picked.rapidGate.room_number} on floor ${picked.rapidGate.floor ?? "?"}.`
         : "Rapid Gate location unavailable."
     }
   };
@@ -1044,6 +1044,17 @@ export async function scanRoom(teamId: string, roomCode: string) {
     };
   }
 
+  if (
+    equalsCode(parsedRoomCode, finalKeyCodes.nexus) ||
+    equalsCode(parsedRoomCode, finalKeyCodes.amiphoria) ||
+    equalsCode(parsedRoomCode, finalKeyCodes.rapidQr)
+  ) {
+    if (!finalKeyState.gate_ready) {
+      throw new ApiError(409, "Final key QRs are locked. Reach the final checkpoint first, then scan NEXUS/AMIPHORIA/Fire.");
+    }
+    throw new ApiError(409, "Final key stage not active yet. Continue normal progression before scanning final key QRs.");
+  }
+
   const room = await findRoomByCode(event.id, parsedRoomCode);
   if (!room) throw new ApiError(404, "Invalid room QR");
 
@@ -1291,7 +1302,9 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
   const currentRoom = team.current_room_id ? rooms.find((r) => r.id === team.current_room_id) : null;
 
   if (currentRoom?.is_trap) {
-    if (currentRoom.room_code !== scannedCode) throw new ApiError(409, "Scan expected room first");
+    if (currentRoom.room_code !== scannedCode) {
+      throw new ApiError(409, "Trap challenge active. Submit using the currently active trap room QR.");
+    }
     const trapQuestion = await buildTrapQuestion({
       eventId: event.id,
       teamId: team.id,
@@ -1370,8 +1383,12 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
     };
   }
 
-  if (expected.room_code !== scannedCode) throw new ApiError(409, "Scan expected room first");
-  if (team.current_room_id !== expected.id) throw new ApiError(409, "Current room mismatch");
+  if (expected.room_code !== scannedCode) {
+    throw new ApiError(409, "Scan the expected room from your latest clue before submitting.");
+  }
+  if (team.current_room_id !== expected.id) {
+    throw new ApiError(409, "No active challenge lock. Scan the expected room QR first.");
+  }
 
   const question = await ensureQuestionAvailable({
     teamId: team.id,
@@ -1659,7 +1676,9 @@ export async function useAbility(teamId: string, ability: "shield" | "pulse") {
   if (team.status !== "active") throw new ApiError(409, "Game not active");
 
   if (ability === "shield") {
-    if (team.shield_charges <= 0) throw new ApiError(409, "No shield charges left");
+    if (team.shield_charges <= 0) {
+      throw new ApiError(409, "No shield charges left. Scan a Shield power QR to replenish.");
+    }
     if (team.shield_active) throw new ApiError(409, "Shield already active");
     const updated = await updateTeamWithVersion(team.id, team.version, {
       shield_charges: team.shield_charges - 1,
@@ -1673,7 +1692,9 @@ export async function useAbility(teamId: string, ability: "shield" | "pulse") {
     };
   }
 
-  if (team.pulse_charges <= 0) throw new ApiError(409, "No pulse charges left");
+  if (team.pulse_charges <= 0) {
+    throw new ApiError(409, "No pulse charges left. Scan a Pulse power QR to replenish.");
+  }
   const rooms = await listRoomsByEvent(event.id);
   const currentRoom = team.current_room_id ? rooms.find((r) => r.id === team.current_room_id) : null;
   let answer = "";

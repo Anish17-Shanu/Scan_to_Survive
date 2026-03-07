@@ -195,7 +195,7 @@ const fields: Array<keyof typeof defaults> = [
 
 export function AdminPage() {
   const navigate = useNavigate();
-  const [simpleMode, setSimpleMode] = useState(true);
+  const [simpleMode, setSimpleMode] = useState(false);
   const [config, setConfig] = useState(defaults);
   const [teamName, setTeamName] = useState("");
   const [teamPassword, setTeamPassword] = useState("");

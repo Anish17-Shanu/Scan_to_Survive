@@ -44,7 +44,7 @@ adminRouter.post(
   requireAdmin,
   asyncHandler(configureEventController)
 );
-adminRouter.post("/create-team", rateLimit(30_000, 50), requireAuth, requireAdmin, asyncHandler(createTeamController));
+adminRouter.post("/create-team", rateLimit(30_000, 300), requireAuth, requireAdmin, asyncHandler(createTeamController));
 adminRouter.get("/monitor", rateLimit(10_000, 60), requireAuth, requireAdmin, asyncHandler(monitorController));
 adminRouter.get("/readiness", rateLimit(10_000, 60), requireAuth, requireAdmin, asyncHandler(readinessController));
 adminRouter.get("/incident-health", rateLimit(10_000, 60), requireAuth, requireAdmin, asyncHandler(incidentHealthController));

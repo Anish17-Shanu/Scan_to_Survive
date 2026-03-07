@@ -87,11 +87,22 @@ export function ScannerPanel({ onDetected, enabled }: Props) {
   }, [enabled, onDetected]);
 
   return (
-    <section className="rounded-2xl border border-white/15 bg-black/20 p-4">
+    <section className="scanner-shell rounded-2xl border border-white/15 bg-black/20 p-4">
       <p className="mb-2 text-sm text-slate-300">
         {!enabled ? "Scanner paused" : active ? "Scanner active" : "Starting scanner..."}
       </p>
-      <div id={regionIdRef.current} className="min-h-64 overflow-hidden rounded-xl border border-white/20" />
+      <div className="scanner-region-wrap">
+        <div id={regionIdRef.current} className="min-h-64 overflow-hidden rounded-xl border border-white/20" />
+        <div className="scanner-reticle" aria-hidden="true">
+          <span className="scanner-reticle-ring scanner-reticle-ring-a" />
+          <span className="scanner-reticle-ring scanner-reticle-ring-b" />
+          <span className="scanner-reticle-sweep" />
+          <span className="scanner-reticle-corner scanner-reticle-corner-tl" />
+          <span className="scanner-reticle-corner scanner-reticle-corner-tr" />
+          <span className="scanner-reticle-corner scanner-reticle-corner-bl" />
+          <span className="scanner-reticle-corner scanner-reticle-corner-br" />
+        </div>
+      </div>
       {error && <p className="mt-2 text-sm text-rose-300">{error}</p>}
     </section>
   );

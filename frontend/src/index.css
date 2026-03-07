@@ -318,6 +318,141 @@ button {
   animation-delay: 0.6s;
 }
 
+.holo-pilot-grid .operator-card {
+  border-color: rgba(124, 233, 255, 0.34);
+}
+
+.holo-reticle {
+  position: relative;
+  height: 86px;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(124, 233, 255, 0.26);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(95, 215, 255, 0.2), transparent 58%),
+    linear-gradient(145deg, rgba(7, 20, 35, 0.86), rgba(7, 28, 36, 0.68));
+  overflow: hidden;
+}
+
+.holo-reticle-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  border: 1px solid rgba(143, 243, 255, 0.45);
+  transform: translate(-50%, -50%);
+}
+
+.holo-reticle-ring-a {
+  animation: reticlePulse 2.2s ease-in-out infinite;
+}
+
+.holo-reticle-ring-b {
+  width: 44px;
+  height: 44px;
+  border-color: rgba(159, 250, 255, 0.72);
+  animation: reticleSpin 3.8s linear infinite;
+}
+
+.holo-reticle-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 20%, rgba(127, 240, 255, 0.32) 50%, transparent 82%);
+  animation: reticleSweep 2.7s linear infinite;
+}
+
+.scanner-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanner-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(130deg, rgba(128, 238, 255, 0.1), transparent 38%, rgba(66, 123, 255, 0.08));
+  pointer-events: none;
+}
+
+.scanner-region-wrap {
+  position: relative;
+}
+
+.scanner-reticle {
+  position: absolute;
+  inset: 8%;
+  border-radius: 0.9rem;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.scanner-reticle-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  border: 1px solid rgba(144, 246, 255, 0.6);
+  transform: translate(-50%, -50%);
+}
+
+.scanner-reticle-ring-a {
+  width: 62%;
+  height: 62%;
+  animation: reticlePulse 2.4s ease-in-out infinite;
+}
+
+.scanner-reticle-ring-b {
+  width: 38%;
+  height: 38%;
+  border-color: rgba(179, 250, 255, 0.82);
+  animation: reticleSpin 4.1s linear infinite;
+}
+
+.scanner-reticle-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 28%, rgba(132, 243, 255, 0.3) 50%, transparent 74%);
+  animation: reticleSweep 2.2s linear infinite;
+}
+
+.scanner-reticle-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(172, 250, 255, 0.84);
+  border-style: solid;
+  border-width: 0;
+}
+
+.scanner-reticle-corner-tl {
+  left: 0;
+  top: 0;
+  border-left-width: 2px;
+  border-top-width: 2px;
+}
+
+.scanner-reticle-corner-tr {
+  right: 0;
+  top: 0;
+  border-right-width: 2px;
+  border-top-width: 2px;
+}
+
+.scanner-reticle-corner-bl {
+  left: 0;
+  bottom: 0;
+  border-left-width: 2px;
+  border-bottom-width: 2px;
+}
+
+.scanner-reticle-corner-br {
+  right: 0;
+  bottom: 0;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+}
+
 .finish-stage {
   position: relative;
   background:
@@ -368,6 +503,12 @@ button {
 .perf-lite .workflow-beam,
 .perf-lite .qr-lane::after,
 .perf-lite .story-flicker,
+.perf-lite .holo-reticle-ring-a,
+.perf-lite .holo-reticle-ring-b,
+.perf-lite .holo-reticle-sweep,
+.perf-lite .scanner-reticle-ring-a,
+.perf-lite .scanner-reticle-ring-b,
+.perf-lite .scanner-reticle-sweep,
 .perf-lite .finish-stage::before,
 .perf-lite .finish-stage::after,
 .perf-lite .finale-fireworks {
@@ -551,6 +692,36 @@ button {
   50% {
     transform: scale(1.08);
     opacity: 1;
+  }
+}
+
+@keyframes reticlePulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.94);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes reticleSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes reticleSweep {
+  from {
+    transform: translateY(-105%);
+  }
+  to {
+    transform: translateY(105%);
   }
 }
 

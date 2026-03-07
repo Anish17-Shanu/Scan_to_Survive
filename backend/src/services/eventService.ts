@@ -16,6 +16,7 @@ import {
 import {
   createLog,
   getLatestEventLogByAction,
+  hasTeamClaimedCode,
   listEventLogsByActions,
   listRecentSuspiciousLogs,
   listTeamLogs
@@ -111,6 +112,11 @@ function difficultyForOrder(order: number): number {
   if (order <= 4) return 3;
   if (order <= 6) return 4;
   return 5;
+}
+
+function computeMainSteps(rooms: Array<{ path_id: string | null; is_trap: boolean }>, pathCount: number): number {
+  const perPath = rooms.filter((room) => room.path_id && !room.is_trap).length / Math.max(1, pathCount);
+  return 2 + Math.max(1, Math.floor(perPath));
 }
 
 function buildRoomNumber(floor: number, index: number): string {
@@ -585,7 +591,7 @@ export async function adminMonitor() {
   }));
 
   const nowMs = Date.now();
-  const mainSteps = 2 + Math.max(1, Math.floor(rooms.filter((r) => r.path_id && !r.is_trap).length / Math.max(1, paths.length)));
+  const mainSteps = computeMainSteps(rooms, paths.length);
   const rapidStartOrder = mainSteps + 1;
 
   const teamSnapshots = teams.map((team) => {
@@ -780,22 +786,33 @@ export async function forceUnlockNext(teamId: string, reason: string) {
   if (team.status !== "active") throw new ApiError(409, "Team is not active");
   if (team.phase === "rapid_fire") throw new ApiError(409, "Force unlock unavailable during rapid-fire");
   if (!team.assigned_path) throw new ApiError(409, "Team path not assigned");
-  const rooms = await listRoomsByEvent(team.event_config_id);
-  const pathPuzzleCount = rooms.filter((r) => r.path_id === team.assigned_path && !r.is_trap).length;
-  const finalOrder = pathPuzzleCount + 1;
-  if (team.current_order >= finalOrder) {
+  const [rooms, paths] = await Promise.all([listRoomsByEvent(team.event_config_id), listPathsByEvent(team.event_config_id)]);
+  const rapidStartOrder = computeMainSteps(rooms, paths.length) + 1;
+  if (team.current_order >= rapidStartOrder) {
     throw new ApiError(409, "Team is already at final checkpoint");
   }
+  const nextOrder = Math.min(rapidStartOrder, team.current_order + 1);
   const updated = await updateTeamWithVersion(team.id, team.version, {
-    current_order: team.current_order + 1,
+    current_order: nextOrder,
     current_room_id: null
   });
   if (!updated) throw new ApiError(409, "Concurrent update; retry");
+  if (nextOrder >= rapidStartOrder) {
+    const gateReadyCode = buildFinalKeyCodes(team.event_config_id).gateReady;
+    if (!(await hasTeamClaimedCode(team.event_config_id, team.id, "final_key_gate_ready", gateReadyCode))) {
+      await createLog({
+        event_config_id: team.event_config_id,
+        team_id: team.id,
+        action_type: "final_key_gate_ready",
+        metadata: { code: gateReadyCode, source: "force_unlock" }
+      });
+    }
+  }
   await createLog({
     event_config_id: team.event_config_id,
     team_id: team.id,
     action_type: "force_unlock",
-    metadata: { reason, from_order: team.current_order, to_order: updated.current_order }
+    metadata: { reason, from_order: team.current_order, to_order: updated.current_order, rapid_start_order: rapidStartOrder }
   });
   return { team_id: updated.id, current_order: updated.current_order };
 }

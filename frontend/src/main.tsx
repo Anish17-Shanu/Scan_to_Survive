@@ -6,11 +6,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./index.css";
 
 const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-const isLowPowerDevice =
-  ((navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8) <= 4 ||
-  (navigator.hardwareConcurrency ?? 8) <= 4;
 
-if (prefersReducedMotion || isLowPowerDevice) {
+if (prefersReducedMotion) {
   document.documentElement.classList.add("perf-lite");
 }
 

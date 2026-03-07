@@ -5,4 +5,5 @@ import { rateLimit } from "../middleware/rateLimit.js";
 
 export const authRouter = Router();
 
-authRouter.post("/login", rateLimit(60_000, 12), asyncHandler(login));
+// Support large synchronized team logins from a shared network.
+authRouter.post("/login", rateLimit(60_000, 500), asyncHandler(login));
