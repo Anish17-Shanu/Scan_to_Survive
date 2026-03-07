@@ -1676,6 +1676,50 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
 
   if (!isCorrect) {
     const trapCandidates = rooms.filter((r) => r.is_trap);
+    if (trapCandidates.length === 0) {
+      // Safety fallback: avoid deadlock when event has zero trap nodes.
+      // Main submission lock is already consumed, so advance checkpoint with penalty.
+      const advancedWrong = await updateTeamWithVersion(team.id, team.version, {
+        current_order: team.current_order + 1,
+        current_room_id: null,
+        points: Math.max(0, team.points + adjustedMainDelta),
+        penalty_seconds: team.penalty_seconds + Math.round(env.DEFAULT_TRAP_PENALTY_SECONDS * pulse.trapPenaltyMultiplier),
+        combo_streak: 0
+      });
+      if (!advancedWrong) throw new ApiError(409, "Concurrent answer update");
+      await createLog({
+        event_config_id: event.id,
+        team_id: team.id,
+        action_type: LOG_ACTIONS.ANSWER_WRONG,
+        metadata: {
+          order: team.current_order,
+          expected_room: expected.room_number,
+          redirect_room: null,
+          fallback: "no_trap_nodes_advance"
+        }
+      });
+      const nextRoomFallback = await findExpectedRoom(event.id, team.assigned_path as string, advancedWrong.current_order);
+      const runesCollected = await getRuneCount(event.id, team.id);
+      const rivalChallenge = await maybeRivalChallenge(event.id, team.id, advancedWrong.points);
+      return {
+        completed: false,
+        message: "Wrong answer recorded. Penalty applied; proceed to the next checkpoint.",
+        team: advancedWrong,
+        active_pulse: pulse,
+        latest_broadcast: broadcast,
+        runes_collected: runesCollected,
+        rival_challenge: rivalChallenge,
+        next_room_clue: nextRoomFallback
+          ? buildRoomClue(
+              nextRoomFallback,
+              advancedWrong.current_order + advancedWrong.points + stableHash(answerToken(input.answer)),
+              answerToken(input.answer),
+              false,
+              true
+            )
+          : fallbackClue("Route advance failed. Proceed to event desk for checkpoint sync.")
+      };
+    }
     const sameFloorTraps = trapCandidates.filter((r) => r.floor === expected.floor);
     const trapRoom = chooseRandom(sameFloorTraps.length > 0 ? sameFloorTraps : trapCandidates);
     const wrongPatch = {

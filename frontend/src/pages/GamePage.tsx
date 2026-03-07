@@ -1260,10 +1260,6 @@ export function GamePage() {
               {nextTarget.layer_one && <p className="mt-1 text-xs text-amber-200">Layer 1: {nextTarget.layer_one}</p>}
               {nextTarget.layer_two && <p className="mt-1 text-xs text-cyan-200">Layer 2: {nextTarget.layer_two}</p>}
               <p className="mt-1 text-xs text-slate-200">{nextTarget.clue_text}</p>
-              <p className="mt-1 text-xs text-slate-400">{nextTarget.decode_hint}</p>
-              {Array.isArray(nextTarget.clue_hints) && nextTarget.clue_hints.length > 0 && (
-                <p className="mt-1 text-[10px] text-slate-400">Use Hint action to unlock staged clue hints.</p>
-              )}
               {nextTarget.unlock_token && <p className="mt-1 text-[10px] text-slate-500">Unlock token: {nextTarget.unlock_token}</p>}
             </>
           )}
