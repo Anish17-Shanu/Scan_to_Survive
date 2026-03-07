@@ -1335,7 +1335,8 @@ function buildRankedRows(rows: Awaited<ReturnType<typeof listLeaderboard>>) {
       if (ta !== tb) return ta - tb;
       if (a.points !== b.points) return b.points - a.points;
       if (a.hints_used !== b.hints_used) return a.hints_used - b.hints_used;
-      return a.trap_hits - b.trap_hits;
+      if (a.trap_hits !== b.trap_hits) return a.trap_hits - b.trap_hits;
+      return b.rapid_fire_score - a.rapid_fire_score;
     })
     .map((row, index) => ({
       rank: index + 1,

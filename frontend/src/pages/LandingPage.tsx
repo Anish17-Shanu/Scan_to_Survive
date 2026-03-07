@@ -42,6 +42,14 @@ const FEATURE_PILLARS = [
   "Hint, shield, and pulse tactical utilities"
 ];
 
+const RANKING_RULES = [
+  "1) Lower total completion time ranks higher (primary rule).",
+  "2) If time is tied, higher points ranks higher.",
+  "3) If still tied, fewer hints used ranks higher.",
+  "4) If still tied, fewer trap hits ranks higher.",
+  "5) If still tied, higher rapid-fire score ranks higher."
+];
+
 const QR_TYPES = [
   {
     name: "Room QR",
@@ -224,6 +232,18 @@ export function LandingPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-violet-300/30 bg-violet-500/10 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-violet-100">Ranking Logic (No Confusion)</p>
+              <div className="mt-2 grid gap-1 text-xs text-slate-100">
+                {RANKING_RULES.map((rule) => (
+                  <p key={rule}>{rule}</p>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-slate-300">
+                Why a lower-point team can still rank above you: they finished in less total time, which is the primary win condition.
+              </p>
             </div>
           </article>
         </section>
