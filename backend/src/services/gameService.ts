@@ -1312,9 +1312,17 @@ export async function scanRoom(teamId: string, roomCode: string) {
     }
 
     if (team.shield_active) {
+      const expectedAfterShield = await findExpectedRoom(event.id, team.assigned_path, team.current_order);
+      const mainCheckpointCode = expectedAfterShield ? `MAIN:${team.current_order}:${expectedAfterShield.room_code}` : null;
+      const mainCheckpointLocked = mainCheckpointCode
+        ? await hasTeamClaimedCode(event.id, team.id, "question_submission_lock", mainCheckpointCode)
+        : false;
+      const nextOrderAfterShield = mainCheckpointLocked ? team.current_order + 1 : team.current_order;
       const shielded = await updateTeamWithVersion(team.id, team.version, {
         shield_active: false,
-        points: team.points + 5
+        points: team.points + 5,
+        current_order: nextOrderAfterShield,
+        current_room_id: null
       });
       if (!shielded) throw new ApiError(409, "Concurrent shield update");
       await createLog({
@@ -1323,16 +1331,18 @@ export async function scanRoom(teamId: string, roomCode: string) {
         action_type: "trap_blocked",
         metadata: { room_code: room.room_code }
       });
-      const expectedAfterShield = await findExpectedRoom(event.id, team.assigned_path, team.current_order);
+      const clueTarget = await findExpectedRoom(event.id, team.assigned_path, shielded.current_order);
       return {
         type: "trap" as const,
-        message: "Trap blocked by Shield. Trap challenge skipped; decode the next room clue.",
+        message: mainCheckpointLocked
+          ? "Trap blocked by Shield. Checkpoint resolved; decode the next room clue."
+          : "Trap blocked by Shield. Continue with your current checkpoint clue.",
         team: shielded,
         active_pulse: pulse,
         latest_broadcast: broadcast,
-        next_room_clue: expectedAfterShield
+        next_room_clue: clueTarget
           ? buildRoomClue(
-              expectedAfterShield,
+              clueTarget,
               shielded.current_order + shielded.points + stableHash(answerToken(shielded.team_name)),
               answerToken(shielded.team_name),
               true,
@@ -1630,12 +1640,17 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
     const trapCorrect = isAnswerMatch(input.answer, trapQuestion.answer);
 
     if (trapCorrect) {
+      const mainCheckpointCode = `MAIN:${team.current_order}:${expected.room_code}`;
+      const mainCheckpointLocked = await hasTeamClaimedCode(event.id, team.id, "question_submission_lock", mainCheckpointCode);
+      const nextOrderAfterTrap = mainCheckpointLocked ? team.current_order + 1 : team.current_order;
       const escaped = await updateTeamWithVersion(team.id, team.version, {
         current_room_id: null,
+        current_order: nextOrderAfterTrap,
         points: team.points + 25,
         combo_streak: team.combo_streak + 1
       });
       if (!escaped) throw new ApiError(409, "Concurrent trap-answer update");
+      const clueTarget = await findExpectedRoom(event.id, team.assigned_path as string, escaped.current_order);
       await createLog({
         event_config_id: event.id,
         team_id: team.id,
@@ -1644,17 +1659,21 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       });
       return {
         completed: false,
-        message: "Response recorded. Decode the clue packet for your next room.",
+        message: mainCheckpointLocked
+          ? "Trap solved. Checkpoint resolved; decode the next room clue."
+          : "Trap solved. Return via clue packet to your current checkpoint path.",
         team: escaped,
         active_pulse: pulse,
         latest_broadcast: broadcast,
-        next_room_clue: buildRoomClue(
-          expected,
-          escaped.current_order + escaped.story_fragments_collected + stableHash(answerToken(input.answer)),
-          answerToken(input.answer),
-          false,
-          assistMode
-        )
+        next_room_clue: clueTarget
+          ? buildRoomClue(
+              clueTarget,
+              escaped.current_order + escaped.story_fragments_collected + stableHash(answerToken(input.answer)),
+              answerToken(input.answer),
+              false,
+              assistMode
+            )
+          : fallbackClue("Trap resolved but next clue unavailable. Proceed to event desk for checkpoint sync.")
       };
     }
 

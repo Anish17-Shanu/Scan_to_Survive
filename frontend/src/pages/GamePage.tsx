@@ -102,6 +102,7 @@ type ScanResponse =
       message: string;
       runes_collected?: number;
       hint_credits_remaining?: number;
+      next_room_clue?: NextTarget;
       active_pulse?: PulseState;
       latest_broadcast?: BroadcastState | null;
       final_key_state?: FinalKeyState;
@@ -692,8 +693,11 @@ export function GamePage() {
 
         if (scanData.type === "trap") {
           audioManager.play("trap_alarm");
-          setFeedback("Trap interaction detected. Resolve the active challenge.");
-          setActivityFeed((prev) => [`Trap interaction registered`, ...prev].slice(0, 10));
+          setFeedback(scanData.message || "Trap interaction detected.");
+          setActivityFeed((prev) => [`Trap update: ${scanData.message || "interaction registered"}`, ...prev].slice(0, 10));
+          if ("next_room_clue" in scanData && scanData.next_room_clue) {
+            setNextTarget(scanData.next_room_clue);
+          }
           setScanEnabled(false);
           return;
         }
