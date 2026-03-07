@@ -1330,10 +1330,10 @@ function buildRankedRows(rows: Awaited<ReturnType<typeof listLeaderboard>>) {
   return rows
     .slice()
     .sort((a, b) => {
+      if (a.points !== b.points) return b.points - a.points;
       const ta = a.total_time_seconds ?? Number.MAX_SAFE_INTEGER;
       const tb = b.total_time_seconds ?? Number.MAX_SAFE_INTEGER;
       if (ta !== tb) return ta - tb;
-      if (a.points !== b.points) return b.points - a.points;
       if (a.hints_used !== b.hints_used) return a.hints_used - b.hints_used;
       if (a.trap_hits !== b.trap_hits) return a.trap_hits - b.trap_hits;
       return b.rapid_fire_score - a.rapid_fire_score;
@@ -1394,8 +1394,8 @@ export async function adminRankingAudit() {
 
   const auditRows = rankedRows.map((row) => {
     const tieVector = [
-      row.total_time_seconds ?? Number.MAX_SAFE_INTEGER,
       -row.points,
+      row.total_time_seconds ?? Number.MAX_SAFE_INTEGER,
       row.hints_used,
       row.trap_hits,
       -row.rapid_fire_score
@@ -1432,8 +1432,8 @@ export async function adminRankingAudit() {
     generated_at: new Date().toISOString(),
     event_id: state.active_event_id,
     tie_break_order: [
-      "1) lower total_time_seconds",
-      "2) higher points",
+      "1) higher points",
+      "2) lower total_time_seconds",
       "3) lower hints_used",
       "4) lower trap_hits",
       "5) higher rapid_fire_score"

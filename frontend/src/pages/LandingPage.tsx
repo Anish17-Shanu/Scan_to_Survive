@@ -43,8 +43,8 @@ const FEATURE_PILLARS = [
 ];
 
 const RANKING_RULES = [
-  "1) Lower total completion time ranks higher (primary rule).",
-  "2) If time is tied, higher points ranks higher.",
+  "1) Higher points ranks higher (primary rule).",
+  "2) If points are tied, lower total completion time ranks higher.",
   "3) If still tied, fewer hints used ranks higher.",
   "4) If still tied, fewer trap hits ranks higher.",
   "5) If still tied, higher rapid-fire score ranks higher."
@@ -242,7 +242,7 @@ export function LandingPage() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-slate-300">
-                Why a lower-point team can still rank above you: they finished in less total time, which is the primary win condition.
+                This prevents fast but low-accuracy runs from outranking teams that solved more correctly and scored higher points.
               </p>
             </div>
           </article>
