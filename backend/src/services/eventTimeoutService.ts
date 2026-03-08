@@ -40,6 +40,13 @@ export async function sweepEventTimeoutIfNeeded(trigger: string) {
   const event = await getActiveEvent();
   if (!event || event.status !== "active") return { timed_out: false };
 
+  const teams = await listTeamsByEvent(event.id);
+  const startedTeams = teams.filter((team) => Boolean(team.start_time));
+  // Do not auto-timeout the event before gameplay has actually started.
+  if (startedTeams.length === 0) {
+    return { timed_out: false, active_elapsed_seconds: 0, reason: "no_started_teams" };
+  }
+
   const state = await getEventState();
   const logs = (await listEventLogsByActions(event.id, ["event_resumed", "event_paused"], 2000)) as Array<{
     action_type: string;
@@ -54,7 +61,6 @@ export async function sweepEventTimeoutIfNeeded(trigger: string) {
     return { timed_out: false, active_elapsed_seconds: Math.floor(elapsedMs / 1000) };
   }
 
-  const teams = await listTeamsByEvent(event.id);
   const terminal = new Set(["completed", "timeout", "disqualified"]);
   let updatedCount = 0;
   const finishedAt = new Date().toISOString();
