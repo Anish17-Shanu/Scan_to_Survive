@@ -1359,6 +1359,7 @@ export async function adminOpsPackage() {
         room_number: node.assigned_room_number ?? "COMMON",
         floor: node.assigned_floor ?? 0,
         room_type: node.type,
+        clue: node.clue,
         placement_zone: node.recommended_placement as "desk" | "door",
         placement_note:
           node.recommended_placement === "desk"
@@ -1372,6 +1373,7 @@ export async function adminOpsPackage() {
         room_number: node.assigned_room_number ?? "COMMON",
         floor: node.assigned_floor ?? 0,
         room_type: node.type,
+        clue: node.clue,
         placement_zone: node.recommended_placement as "desk" | "door",
         placement_note:
           node.recommended_placement === "desk"

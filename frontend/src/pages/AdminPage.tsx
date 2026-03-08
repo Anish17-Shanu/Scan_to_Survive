@@ -46,6 +46,7 @@ type OpsPackage = {
     room_number: string;
     floor: number;
     room_type: string;
+    clue?: string;
     placement_zone: "desk" | "door";
     placement_note: string;
     qr_code_payload: string;
@@ -809,6 +810,7 @@ export function AdminPage() {
           <h3 class="title">${card.title}</h3>
           <div class="meta">Placement: <strong>${card.placement_zone.toUpperCase()}</strong></div>
           <div class="meta">${card.placement_note}</div>
+          ${card.clue ? `<div class="meta"><strong>Clue:</strong> ${card.clue}</div>` : ""}
           <div class="qr-wrap">${card.qr_svg}</div>
           <div class="payload">Payload: ${card.qr_code_payload}</div>
         </div>
