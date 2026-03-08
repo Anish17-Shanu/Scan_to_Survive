@@ -1314,20 +1314,24 @@ export function GamePage() {
           )}
           {team?.phase === "rapid_fire" && <p className="mt-2 text-sm text-amber-300">Rapid timer: {rapidRemaining}s {jackpotActive ? "(Jackpot x2)" : ""}</p>}
           {rapidQuestion && <p className="mt-1 text-xs text-slate-300">Rapid Q {rapidQuestion.order}/{rapidQuestion.total}</p>}
-          {finalKeyState?.gate_ready && team?.phase === "main" && (
+          {finalKeyState?.gate_ready && team?.phase === "main" && finalKeyBrief && (
             <>
               <div className="my-3 h-px bg-white/10" />
               <p className="text-xs text-slate-300">Final Key Gate</p>
               <p className="text-xs text-slate-200">Key Shard A: {finalKeyState.nexus_scanned ? "Scanned" : "Pending"}</p>
               <p className="text-xs text-slate-200">Key Shard B: {finalKeyState.amiphoria_scanned ? "Scanned" : "Pending"}</p>
               <p className="text-xs text-slate-200">Fire QR (Rapid Gate): {finalKeyState.rapid_qr_code_hint}</p>
-              {finalKeyBrief && (
-                <div className="mt-2 space-y-1 rounded-xl border border-cyan-300/20 bg-cyan-500/5 p-2">
+              <div className="mt-2 space-y-1 rounded-xl border border-cyan-300/20 bg-cyan-500/5 p-2">
+                {!finalKeyState.nexus_scanned && (
                   <p className="text-[10px] text-cyan-100">Key Shard A clue: {finalKeyBrief.nexus.clue}</p>
+                )}
+                {finalKeyState.nexus_scanned && !finalKeyState.amiphoria_scanned && (
                   <p className="text-[10px] text-cyan-100">Key Shard B clue: {finalKeyBrief.amiphoria.clue}</p>
+                )}
+                {finalKeyState.nexus_scanned && finalKeyState.amiphoria_scanned && (
                   <p className="text-[10px] text-cyan-100">Rapid gate clue: {finalKeyBrief.rapid_gate.clue}</p>
-                </div>
-              )}
+                )}
+              </div>
               <div className="mt-2 grid grid-cols-3 gap-2">
                 {(rapidCategory?.options ?? ["web", "database", "networking"]).map((cat) => (
                   <button

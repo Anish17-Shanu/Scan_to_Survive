@@ -536,26 +536,38 @@ function buildFinalKeyBrief(
   rapid_gate: { room_number: string | null; floor: number | null; clue: string };
 } {
   const picked = pickFinalKeyAnchors(eventId, rooms);
+  const roomByNumber = new Map(rooms.map((r) => [r.room_number, r]));
+  const nodeLabel = (roomNumber: string | undefined) => {
+    if (!roomNumber) return "Unknown Node";
+    const room = roomByNumber.get(roomNumber);
+    return resolveNodeIdentity({
+      room_number: roomNumber,
+      floor: room?.floor ?? null,
+      is_entry: room?.is_entry ?? false,
+      is_final: room?.is_final ?? false,
+      is_trap: room?.is_trap ?? false
+    });
+  };
   return {
     nexus: {
       room_number: picked.nexus?.room_number ?? null,
       floor: picked.nexus?.floor ?? null,
       clue: picked.nexus
-        ? `Key Shard A is at room ${picked.nexus.room_number} on floor ${picked.nexus.floor ?? "?"}.`
+        ? `Key Shard A: Room ${picked.nexus.room_number} (${nodeLabel(picked.nexus.room_number)}), Floor ${picked.nexus.floor ?? "?"}.`
         : "Key Shard A location unavailable."
     },
     amiphoria: {
       room_number: picked.amiphoria?.room_number ?? null,
       floor: picked.amiphoria?.floor ?? null,
       clue: picked.amiphoria
-        ? `Key Shard B is at room ${picked.amiphoria.room_number} on floor ${picked.amiphoria.floor ?? "?"}.`
+        ? `Key Shard B: Room ${picked.amiphoria.room_number} (${nodeLabel(picked.amiphoria.room_number)}), Floor ${picked.amiphoria.floor ?? "?"}.`
         : "Key Shard B location unavailable."
     },
     rapid_gate: {
       room_number: picked.rapidGate?.room_number ?? null,
       floor: picked.rapidGate?.floor ?? null,
       clue: picked.rapidGate
-        ? `After both shards, scan the Fire QR at room ${picked.rapidGate.room_number} on floor ${picked.rapidGate.floor ?? "?"}.`
+        ? `After both shards, scan Fire QR at Room ${picked.rapidGate.room_number} (${nodeLabel(picked.rapidGate.room_number)}), Floor ${picked.rapidGate.floor ?? "?"}.`
         : "Rapid Gate location unavailable."
     }
   };
@@ -990,8 +1002,18 @@ export async function startGame(teamId: string) {
     .sort((a, b) => a.count - b.count || a.path.path_order - b.path.path_order);
 
   const leastCount = pathLoad.find((p) => p.count < p.path.max_capacity)?.count;
+  const usedPathIds = new Set(
+    teams
+      .filter((t) => t.assigned_path && t.status !== "disqualified")
+      .map((t) => t.assigned_path as string)
+  );
+  const unusedCandidates = pathLoad.filter((p) => p.count < p.path.max_capacity && !usedPathIds.has(p.path.id));
   const candidates =
-    leastCount === undefined ? [] : pathLoad.filter((p) => p.count === leastCount && p.count < p.path.max_capacity);
+    unusedCandidates.length > 0
+      ? unusedCandidates
+      : leastCount === undefined
+        ? []
+        : pathLoad.filter((p) => p.count === leastCount && p.count < p.path.max_capacity);
   const selected = candidates.length > 0 ? candidates[stableHash(team.id) % candidates.length] : null;
   if (!selected) throw new ApiError(409, "No path capacity available");
 
