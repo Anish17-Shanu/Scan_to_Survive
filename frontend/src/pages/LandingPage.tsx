@@ -22,7 +22,7 @@ const WORKFLOW_STEPS = [
   {
     title: "Final Key Sequence",
     detail:
-      "Scan Nexus key QR and Amiphoria key QR, then locate and scan Fire QR to unlock rapid-fire mode.",
+      "Scan both key-shard QRs, then locate and scan Fire QR to unlock final rapid override mode.",
     badge: "Gate Chain"
   },
   {
@@ -34,11 +34,11 @@ const WORKFLOW_STEPS = [
 ];
 
 const FEATURE_PILLARS = [
-  "Adaptive traps and penalty system",
+  "Corrupted node (trap) recovery system",
   "Realtime team status + broadcast alerts",
-  "Story fragments and mission progression",
+  "Node restoration storyline progression",
   "Multi-device continuity for team login",
-  "Final key gate with rapid-fire category selection",
+  "Final key gate with rapid override category selection",
   "Hint, shield, and pulse tactical utilities"
 ];
 
@@ -80,7 +80,7 @@ const QR_TYPES = [
     description: "Secret collectible. Adds bonus points and rune progression."
   },
   {
-    name: "Nexus/Amiphoria Key QR",
+    name: "Key Shard QR",
     description: "Final key shards required before Fire QR will unlock rapid-fire."
   },
   {
@@ -135,11 +135,11 @@ export function LandingPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-6xl px-4 py-8 md:items-center md:py-10">
       <section className="grid w-full gap-6">
         <article className="glass-card hero-glow cinematic-sweep fade-rise rounded-[2rem] p-7 md:p-8">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-300">Nexus x Amiphoria Mission Protocol</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight md:text-5xl">Scan to Survive: Full Team Workflow</h1>
+          <p className="text-xs uppercase tracking-[0.35em] text-slate-300">Operation: Firewall // Mission Control</p>
+          <h1 className="mt-3 text-4xl font-semibold leading-tight md:text-5xl">Scan to Survive: NULL Containment Protocol</h1>
           <p className="mt-4 max-w-4xl text-sm text-slate-200 md:text-base">
-            This mission runs on a strict scan-decode-move loop. Each team must coordinate roles, maintain clue discipline,
-            survive trap pressure, and execute the final rapid-fire override before the firewall collapse.
+            The university network has been compromised by rogue AI NULL. Each room is a system node. Scan, solve,
+            decode, and restore node integrity before NULL gains full control of the grid.
           </p>
 
           <div className="workflow-track mt-6 rounded-2xl border border-cyan-200/20 bg-black/25 p-4">
@@ -147,8 +147,8 @@ export function LandingPage() {
             <div className="grid gap-2 text-xs text-cyan-100 md:grid-cols-4 md:text-sm">
               <p>QR Detection</p>
               <p>Challenge Sync</p>
-              <p>Clue Decode</p>
-              <p>Rapid Gate Trigger</p>
+              <p>Node Restore</p>
+              <p>Core Terminal Override</p>
             </div>
           </div>
 
@@ -166,8 +166,8 @@ export function LandingPage() {
           <article className="operator-card rounded-3xl p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">NEXUS-7</p>
-                <p className="mt-1 text-sm text-slate-200">Route AI projecting scan-safe movement path.</p>
+                <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">MISSION CONTROL</p>
+                <p className="mt-1 text-sm text-slate-200">Node path projection active. Integrity recovery sequence loaded.</p>
               </div>
               <div className="avatar-core avatar-core-cyan" />
             </div>
@@ -176,12 +176,12 @@ export function LandingPage() {
           <article className="operator-card rounded-3xl p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.24em] text-emerald-200">AMIPHORIA-OS</p>
-                <p className="mt-1 text-sm text-slate-200">Puzzle relay active. Answer formatting monitor online.</p>
+                <p className="text-xs uppercase tracking-[0.24em] text-emerald-200">NULL WATCH</p>
+                <p className="mt-1 text-sm text-slate-200">Anomaly relay active. Corrupted-node monitor online.</p>
               </div>
               <div className="avatar-core avatar-core-emerald" />
             </div>
-            <p className="terminal-line mt-3 text-xs text-cyan-100">Decode channel stable. Keep runner/navigator sync.</p>
+            <p className="terminal-line mt-3 text-xs text-cyan-100">NULL traffic detected. Maintain runner/navigator sync.</p>
           </article>
         </section>
 
@@ -239,7 +239,7 @@ export function LandingPage() {
                 <span className="holo-reticle-sweep" />
               </div>
               <p className="mt-3 text-xs text-slate-300">
-                Visual cue: room QR scan events propagate as challenge sync pulses across the team workflow.
+                Visual cue: node scan events propagate as system recovery pulses across the mission workflow.
               </p>
             </div>
 
@@ -272,7 +272,7 @@ export function LandingPage() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-slate-300">
-                This prevents fast but low-accuracy runs from outranking teams that solved more correctly and scored higher points.
+                This keeps ranking fair: teams restoring nodes accurately and efficiently rank higher.
               </p>
             </div>
 

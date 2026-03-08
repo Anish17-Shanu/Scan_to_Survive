@@ -24,7 +24,7 @@ const d1Bank: BankEntry[] = [
   { category: "fundamentals", question: "ROM stands for?", answer: "read only memory" },
   { category: "fundamentals", question: "OS stands for?", answer: "operating system" },
   { category: "fundamentals", question: "1 kilobyte in binary convention equals how many bytes?", answer: "1024" },
-  { category: "fundamentals", question: "Binary system uses which two digits?", answer: "0 and 1" },
+  { category: "fundamentals", question: "Binary system uses which two digits?", answer: "0 and 1|0,1|0 1" },
   { category: "fundamentals", question: "Main processing chip of a computer is called?", answer: "cpu" },
   { category: "fundamentals", question: "The physical parts of a computer are called?", answer: "hardware" },
   { category: "fundamentals", question: "Programs and apps are collectively called?", answer: "software" },
@@ -37,12 +37,12 @@ const d1Bank: BankEntry[] = [
   { category: "digital-life", question: "A fake message trying to steal credentials is called?", answer: "phishing" },
   { category: "digital-life", question: "App used in India to store verified digital documents?", answer: "digilocker" },
 
-  { category: "india-tech", question: "Indian instant payment rail launched by NPCI in 2016 is called?", answer: "upi" },
+  { category: "india-tech", question: "Indian instant payment rail by NPCI is called?", answer: "upi" },
   { category: "india-tech", question: "Organization that developed UPI?", answer: "npci|national payments corporation of india" },
   { category: "india-tech", question: "India's 12-digit digital identity program is called?", answer: "aadhaar|aadhar" },
   { category: "india-tech", question: "Authority that issues Aadhaar IDs?", answer: "uidai" },
   { category: "india-tech", question: "Open Network for Digital Commerce is abbreviated as?", answer: "ondc" },
-  { category: "india-tech", question: "ISRO mission that soft-landed near moon south pole in 2023?", answer: "chandrayaan-3|chandrayaan 3" },
+  { category: "india-tech", question: "ISRO mission that soft-landed near moon south pole is called?", answer: "chandrayaan-3|chandrayaan 3" },
   { category: "india-tech", question: "Name announced for Chandrayaan-3 landing site?", answer: "shiv shakti point|shivshakti point" },
 
   { category: "html", question: "Standard markup language for web page structure?", answer: "html" },
@@ -97,12 +97,12 @@ const d2Bank: BankEntry[] = [
   { category: "os", question: "Linux command to print current directory?", answer: "pwd" },
   { category: "os", question: "Linux command to create directory?", answer: "mkdir" },
 
-  { category: "security", question: "Converting plaintext into unreadable form using key is called?", answer: "encryption" },
-  { category: "security", question: "One-way digest operation used for integrity check is called?", answer: "hashing" },
+  { category: "security", question: "Converting plaintext into ciphertext using a key is called?", answer: "encryption" },
+  { category: "security", question: "One-way digest operation used for integrity verification is called?", answer: "hashing" },
 
   { category: "india-tech", question: "Platform used in India for FASTag highway toll collection ecosystem?", answer: "fastag" },
   { category: "india-tech", question: "Unified mobile app by NPCI for UPI transfers (short name)?", answer: "bhim" },
-  { category: "india-tech", question: "Government online procurement portal often abbreviated as GeM expands to?", answer: "government e marketplace|government e-marketplace" }
+  { category: "india-tech", question: "GeM expands to?", answer: "government e marketplace|government e-marketplace" }
 ];
 
 const d3Bank: BankEntry[] = [
@@ -147,7 +147,7 @@ const d3Bank: BankEntry[] = [
   { category: "c", question: "In C, operator to dereference pointer?", answer: "*" },
   { category: "c", question: "In C, memory allocated with malloc should be released using?", answer: "free" },
 
-  { category: "india-tech", question: "India Stack component used for paperless signed documents?", answer: "digilocker" },
+  { category: "india-tech", question: "India Stack component used for paperless document storage and sharing?", answer: "digilocker" },
   { category: "india-tech", question: "India's account-aggregator ecosystem is regulated by which financial regulator?", answer: "rbi|reserve bank of india" }
 ];
 
@@ -188,7 +188,7 @@ const d4Bank: BankEntry[] = [
   { category: "os", question: "Traditional Linux command to show running processes?", answer: "ps" },
 
   { category: "security", question: "Security test simulating real attacker behavior is called?", answer: "penetration testing|pentest" },
-  { category: "security", question: "Three-letter framework: Confidentiality, Integrity, Availability?", answer: "cia triad" },
+  { category: "security", question: "Security model with Confidentiality, Integrity, Availability is called?", answer: "cia triad" },
 
   { category: "python", question: "Output of Python: 3 // 2", answer: "1" },
   { category: "python", question: "Output of Python: 'A' * 3", answer: "aaa" },
@@ -201,8 +201,8 @@ const d4Bank: BankEntry[] = [
   { category: "c", question: "In C, array indexing starts at?", answer: "0" },
   { category: "c", question: "In C, operator to get variable address?", answer: "&" },
 
-  { category: "india-tech", question: "Indian mission focused on semiconductor ecosystem approved in 2021?", answer: "semicon india programme|semicon india" },
-  { category: "india-tech", question: "National super app for public digital infrastructure APIs by NPCI foundation layer?", answer: "upi" }
+  { category: "india-tech", question: "Indian mission focused on semiconductor ecosystem is called?", answer: "semicon india programme|semicon india" },
+  { category: "india-tech", question: "NPCI real-time retail payments system abbreviation?", answer: "upi" }
 ];
 
 const d5Bank: BankEntry[] = [
@@ -254,8 +254,8 @@ const d5Bank: BankEntry[] = [
   { category: "coding", question: "Traversal that goes deep before backtracking?", answer: "dfs|depth first search" },
   { category: "coding", question: "Technique where function calls itself to solve smaller instance?", answer: "recursion" },
 
-  { category: "india-tech", question: "As of 2024-2025, India's flagship retail CBDC pilots are for which central bank digital currency family?", answer: "digital rupee|e-rupee|e?" },
-  { category: "india-tech", question: "UPI 123PAY was introduced mainly to support payments on which type of phones?", answer: "feature phones|feature phone" }
+  { category: "india-tech", question: "Name of India's central bank digital currency pilot?", answer: "digital rupee|e-rupee" },
+  { category: "india-tech", question: "UPI 123PAY primarily targets which phone category?", answer: "feature phones|feature phone" }
 ];
 
 function answerFormatHint(answer: string): string {
@@ -292,16 +292,16 @@ function curatedQuestionHints(entry: BankEntry): {
 
   if (q.includes("stands for") || q.includes("abbreviated as") || q.includes("abbreviation")) {
     return {
-      primary: "Expand or identify the official acronym correctly.",
+      primary: "Node hint: expand or identify the official acronym correctly.",
       secondary: "Use the standard textbook/government expansion or short form.",
       tertiary: "Do not add explanation text.",
       quaternary: formatHint,
       quinary: variantHint
     };
   }
-  if (q.includes("in 2023") || q.includes("in 2016") || q.includes("in 2021") || q.includes("as of")) {
+  if (/\b(19|20)\d{2}\b/.test(q) || q.includes("as of")) {
     return {
-      primary: "Question is time-anchored; answer from the stated period.",
+      primary: "Node hint: question is time-anchored; answer from the stated period.",
       secondary: "Use the named program/mission from that specific context.",
       tertiary: "Return only the program/mission name token.",
       quaternary: formatHint,
@@ -310,7 +310,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (q.includes("status code") || q.includes("how many") || /^\d+/.test(variants[0] ?? "")) {
     return {
-      primary: "Numeric response required.",
+      primary: "Node hint: numeric response required.",
       secondary: "Use digits only; no words.",
       tertiary: "No units or extra punctuation.",
       quaternary: formatHint,
@@ -319,7 +319,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (q.includes("true or false") || q.includes("yes/no") || q.includes("yes or no")) {
     return {
-      primary: "Boolean token expected.",
+      primary: "Node hint: boolean token expected.",
       secondary: "Submit exactly one token: true/false or yes/no as asked.",
       tertiary: "No explanation after the token.",
       quaternary: formatHint,
@@ -328,7 +328,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (q.includes("without < >")) {
     return {
-      primary: "Submit tag/token only.",
+      primary: "Node hint: submit tag/token only.",
       secondary: "Do not include angle brackets.",
       tertiary: "No sentence text.",
       quaternary: formatHint,
@@ -337,7 +337,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (q.startsWith("evaluate") || q.includes("output of") || q.includes("value of")) {
     return {
-      primary: "Compute the exact final output.",
+      primary: "Node hint: compute the exact final output.",
       secondary: "Submit only final value/token.",
       tertiary: "No intermediate steps.",
       quaternary: formatHint,
@@ -346,7 +346,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (variants[0]?.startsWith("git ")) {
     return {
-      primary: "Full git command expected.",
+      primary: "Node hint: full git command expected.",
       secondary: "Include required subcommand and flags.",
       tertiary: "Spacing must match valid command syntax.",
       quaternary: formatHint,
@@ -355,7 +355,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (entry.category === "sql") {
     return {
-      primary: "SQL keyword/concept expected.",
+      primary: "Node hint: SQL keyword/concept expected.",
       secondary: "Use canonical SQL term only.",
       tertiary: "No sentence explanation.",
       quaternary: formatHint,
@@ -364,7 +364,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (entry.category === "network") {
     return {
-      primary: "Networking protocol/port/layer token expected.",
+      primary: "Node hint: networking protocol/port/layer token expected.",
       secondary: "Use exact standard networking term.",
       tertiary: "Keep answer minimal and precise.",
       quaternary: formatHint,
@@ -373,7 +373,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (entry.category === "india-tech") {
     return {
-      primary: "Think of official Indian digital/public-tech platforms or missions.",
+      primary: "Node hint: think of official Indian digital/public-tech platforms or missions.",
       secondary: "Use the recognized short name or formal mission/platform name.",
       tertiary: "Avoid generic descriptions.",
       quaternary: formatHint,
@@ -382,7 +382,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
   if (["python", "java", "c", "js", "html", "css"].includes(entry.category)) {
     return {
-      primary: "Language token/keyword/API expected.",
+      primary: "Node hint: language token/keyword/API expected.",
       secondary: "Exact spelling and symbols matter.",
       tertiary: "Submit only the token/keyword.",
       quaternary: formatHint,
@@ -391,7 +391,7 @@ function curatedQuestionHints(entry: BankEntry): {
   }
 
   return {
-    primary: `Target concept is in ${entry.category}.`,
+    primary: `Node hint: target concept is in ${entry.category}.`,
     secondary: "Return the shortest exact technical term matching the concept.",
     tertiary: "Avoid descriptive sentences.",
     quaternary: formatHint,
@@ -402,7 +402,7 @@ function curatedQuestionHints(entry: BankEntry): {
 function push(rows: QuestionSeed[], eventId: string, difficulty: number, entry: BankEntry, serial: number): void {
   const cycle = Math.floor(serial / 100) + 1;
   const withSet = cycle === 1 ? entry.question : `${entry.question} (Set ${cycle})`;
-  const questionText = `${withSet} [Answer format: ${answerFormatHint(entry.answer)}]`;
+  const questionText = `NULL NODE CHALLENGE: ${withSet} [Answer format: ${answerFormatHint(entry.answer)}]`;
   const hints = curatedQuestionHints(entry);
   rows.push({
     event_config_id: eventId,

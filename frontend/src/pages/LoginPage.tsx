@@ -13,7 +13,7 @@ type TutorialItem = {
 const TUTORIAL_ITEMS: TutorialItem[] = [
   { id: "roles", text: "We assigned Runner (scan/move) and Navigator (solve/submit)." },
   { id: "loop", text: "We understand the loop: scan QR -> solve -> decode -> move." },
-  { id: "keys", text: "We know final key order: Nexus QR -> Amiphoria QR -> Fire QR." },
+  { id: "keys", text: "We know final key order: Key Shard A -> Key Shard B -> Fire QR." },
   { id: "rapid", text: "We understand rapid-fire is timed and accuracy impacts ranking." }
 ];
 
@@ -94,8 +94,8 @@ export function LoginPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-8 md:py-10">
       <section className="grid w-full gap-6 lg:grid-cols-2">
         <article className="fade-rise glass-card rounded-3xl p-7">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-300">Amiphoria Presents Nexus</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight">Nexus Presents: Scan to Survive</h1>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-300">Operation: Firewall</p>
+          <h1 className="mt-3 text-4xl font-semibold leading-tight">Scan to Survive // NULL Containment</h1>
           <p className="mt-4 max-w-md text-sm text-slate-300">
             Team login includes a mandatory tutorial confirmation. This gate prevents mission start until workflow is
             acknowledged.
@@ -230,7 +230,7 @@ export function LoginPage() {
             <p className="mt-2 text-xs text-amber-200">Complete all tutorial checks to unlock team entry.</p>
           )}
           <button type="button" className="ghost-btn mt-3 w-full" onClick={() => navigate("/")}>
-            Back to Amiphoria Intro
+            Back to Mission Brief
           </button>
         </form>
       </section>

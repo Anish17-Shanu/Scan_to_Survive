@@ -19,6 +19,7 @@ import { findTeamById, listTeamsByEvent, updateTeamWithVersion } from "../reposi
 import { ApiError } from "../utils/apiError.js";
 import { buildFinalKeyCodes, pickFinalKeyAnchors } from "../utils/finalKeyPlan.js";
 import { buildGameplayMeta, buildMilestoneBadge } from "../utils/gameplayUtils.js";
+import { resolveNodeIdentity } from "../utils/roomNodeIdentity.js";
 import { elapsedSeconds } from "../utils/time.js";
 
 const RAPID_FIRE_DURATION_SECONDS = 5 * 60;
@@ -33,25 +34,25 @@ const GLOBAL_PULSES = [
 const STORY_FRAGMENTS = [
   {
     title: "Fragment I",
-    text: "Your city went dark at 02:17. Nexus found the blackout source inside the Vault clock.",
+    text: "NULL breached the university grid at 02:17. The first corruption signature appeared in the node clock.",
     artifact: "Clock Anchor",
     bonusPoints: 20
   },
   {
     title: "Fragment II",
-    text: "Amiphoria intercepted a dying signal: room routes are encoded as memories, not maps.",
+    text: "Mission telemetry confirms routes are encoded as node memory traces, not maps.",
     artifact: "Memory Cipher",
     bonusPoints: 24
   },
   {
     title: "Fragment III",
-    text: "Every trap was built from fear patterns. Survive one and the Vault reveals a weakness.",
+    text: "Every trap node is behavior-adaptive. Survive one and NULL leaks a weakness.",
     artifact: "Fear Lattice",
     bonusPoints: 28
   },
   {
     title: "Fragment IV",
-    text: "The Architect split the final key across two factions: Nexus and Amiphoria.",
+    text: "NULL split the final access key into two independent shard signatures.",
     artifact: "Dual Covenant",
     bonusPoints: 32
   },
@@ -69,13 +70,13 @@ const STORY_FRAGMENTS = [
   },
   {
     title: "Fragment VII",
-    text: "The Vault ledger records sacrifice, not just answers. Every penalty leaves a scar.",
+    text: "The restoration ledger records stability loss as well as correct recoveries.",
     artifact: "Ledger Scar",
     bonusPoints: 45
   },
   {
     title: "Fragment VIII",
-    text: "Final warning: when the rapid-fire gate opens, the city grid has minutes before collapse.",
+    text: "Final warning: once the rapid-fire gate opens, the core grid has minutes before total takeover.",
     artifact: "City Firewall Key",
     bonusPoints: 55
   }
@@ -88,9 +89,9 @@ const STORY_MILESTONES: Record<number, number> = {
 };
 const STORY_MILESTONE_TITLES: Record<number, string> = {
   2: "Route Stabilized",
-  4: "Architect Breach",
+  4: "NULL Breach",
   6: "Firewall Fracture",
-  8: "Vault Resonance"
+  8: "Core Resonance"
 };
 const BOSS_ORDERS = new Set([3, 6, 9]);
 const CLUE_STYLES = ["cipher", "binary", "logic", "code-snippet", "pattern"] as const;
@@ -417,6 +418,14 @@ function digitsOnly(roomNumber: string): string {
   return digits.length > 0 ? digits : roomNumber;
 }
 
+function roomQuestionText(input: {
+  room: { room_number: string; floor: number | null; is_entry?: boolean; is_final?: boolean; is_trap?: boolean };
+  question: string;
+}) {
+  const node = resolveNodeIdentity(input.room);
+  return `[Room ${input.room.room_number} | ${node}] ${input.question}`;
+}
+
 function buildRoomClue(
   room: { room_number: string; floor: number | null },
   styleSeed: number,
@@ -424,6 +433,7 @@ function buildRoomClue(
   multiLayer = false,
   assistMode = false
 ) {
+  const nodeName = resolveNodeIdentity(room);
   const clueStyle = CLUE_STYLES[styleSeed % CLUE_STYLES.length];
   const raw = digitsOnly(room.room_number);
   const floor = room.floor ?? 0;
@@ -449,9 +459,9 @@ function buildRoomClue(
   if (clueStyle === "cipher") {
     return {
       clue_style: clueStyle,
-      title: "Ciphered Route",
-      clue_text: `Shift every digit by -3 (mod 10): ${shifted}`,
-      decode_hint: tunedHint("Inverse the transform to recover the room token."),
+      title: `Next Node: ${nodeName}`,
+      clue_text: `Target node signature (cipher): shift every digit by -3 (mod 10): ${shifted}`,
+      decode_hint: tunedHint(`Recover the next room token, then move to node "${nodeName}".`),
       clue_hints,
       unlock_token: unlockToken
     };
@@ -459,9 +469,9 @@ function buildRoomClue(
   if (clueStyle === "binary") {
     return {
       clue_style: clueStyle,
-      title: "Binary Route",
-      clue_text: `Decode 6-bit ASCII binary blocks into digits: ${binary}`,
-      decode_hint: tunedHint("Interpret each block as one encoded digit character."),
+      title: `Next Node: ${nodeName}`,
+      clue_text: `Target node signature (binary): decode 6-bit ASCII blocks into digits: ${binary}`,
+      decode_hint: tunedHint(`Interpret each block as one encoded digit; destination node is "${nodeName}".`),
       clue_hints,
       unlock_token: unlockToken
     };
@@ -469,9 +479,9 @@ function buildRoomClue(
   if (clueStyle === "logic") {
     return {
       clue_style: clueStyle,
-      title: "Logic Route",
-      clue_text: `Room + floor = ${plusFloor}. Floor = ${floor}.`,
-      decode_hint: tunedHint("Extract the unknown from the relation."),
+      title: `Next Node: ${nodeName}`,
+      clue_text: `Target node equation: room + floor = ${plusFloor}. Floor = ${floor}.`,
+      decode_hint: tunedHint(`Extract the room token, then route to "${nodeName}".`),
       clue_hints,
       unlock_token: unlockToken
     };
@@ -479,18 +489,18 @@ function buildRoomClue(
   if (clueStyle === "code-snippet") {
     return {
       clue_style: clueStyle,
-      title: "Code Route",
-      clue_text: `const token="${reversed}"; const room = token.split("").reverse().join("");`,
-      decode_hint: tunedHint("Execute the transformation mentally."),
+      title: `Next Node: ${nodeName}`,
+      clue_text: `Target node snippet: const token="${reversed}"; const room = token.split("").reverse().join("");`,
+      decode_hint: tunedHint(`Execute the transform mentally and move to "${nodeName}".`),
       clue_hints,
       unlock_token: unlockToken
     };
   }
   const clue = {
     clue_style: clueStyle,
-    title: "Pattern Route",
-    clue_text: `Interleave pattern hint: ${raw[0] ?? ""}-?-${raw[raw.length - 1] ?? ""}, mirror token ${reversed}`,
-    decode_hint: tunedHint("Resolve the mirrored pattern to recover the route."),
+    title: `Next Node: ${nodeName}`,
+    clue_text: `Target node pattern: ${raw[0] ?? ""}-?-${raw[raw.length - 1] ?? ""}, mirror token ${reversed}`,
+    decode_hint: tunedHint(`Resolve the mirrored route token; destination node is "${nodeName}".`),
     clue_hints,
     unlock_token: unlockToken
   };
@@ -531,15 +541,15 @@ function buildFinalKeyBrief(
       room_number: picked.nexus?.room_number ?? null,
       floor: picked.nexus?.floor ?? null,
       clue: picked.nexus
-        ? `NEXUS shard is at room ${picked.nexus.room_number} on floor ${picked.nexus.floor ?? "?"}.`
-        : "NEXUS shard location unavailable."
+        ? `Key Shard A is at room ${picked.nexus.room_number} on floor ${picked.nexus.floor ?? "?"}.`
+        : "Key Shard A location unavailable."
     },
     amiphoria: {
       room_number: picked.amiphoria?.room_number ?? null,
       floor: picked.amiphoria?.floor ?? null,
       clue: picked.amiphoria
-        ? `AMIPHORIA shard is at room ${picked.amiphoria.room_number} on floor ${picked.amiphoria.floor ?? "?"}.`
-        : "AMIPHORIA shard location unavailable."
+        ? `Key Shard B is at room ${picked.amiphoria.room_number} on floor ${picked.amiphoria.floor ?? "?"}.`
+        : "Key Shard B location unavailable."
     },
     rapid_gate: {
       room_number: picked.rapidGate?.room_number ?? null,
@@ -642,10 +652,10 @@ async function recacheRapidQuestionsByCategory(input: {
 }
 
 function storyChapterForCount(collected: number): string {
-  if (collected >= 8) return "Act IV: Vault Override";
-  if (collected >= 6) return "Act III: Firewall Breach";
-  if (collected >= 3) return "Act II: Signal Hunt";
-  return "Act I: Broken Vault";
+  if (collected >= 8) return "Act IV: Core Terminal Override";
+  if (collected >= 6) return "Act III: Key Shard Sync";
+  if (collected >= 3) return "Act II: Corrupted Grid";
+  return "Act I: Node Breach";
 }
 
 function rapidUnlockFragments(mainSteps: number): number {
@@ -933,7 +943,7 @@ export async function startGame(teamId: string) {
       runes_collected: runeCount,
       hint_credits_remaining: hintCredits,
       story_intro:
-        "Nexus and Amiphoria need your team to rebuild the shattered Vault key. Solve technical puzzles, decode clues, recover fragments, and stop the city-wide blackout before the final timer expires.",
+        "Rogue AI NULL has fragmented the university network into physical nodes. Scan room QRs, solve technical challenges, decode clues, and restore node integrity before final timer expiry.",
       story_mission: storyMission,
       story_chapter: storyMission.chapter,
       route_briefing: buildRouteBriefing({
@@ -953,7 +963,10 @@ export async function startGame(teamId: string) {
               room_number: currentRoom.room_number,
               room_code: currentRoom.room_code,
               difficulty_level: currentTrapQuestion?.difficulty_level ?? currentQuestion?.difficulty_level ?? 1,
-              question_text: currentTrapQuestion?.question_text ?? currentQuestion?.cached_question ?? ""
+              question_text: roomQuestionText({
+                room: currentRoom,
+                question: currentTrapQuestion?.question_text ?? currentQuestion?.cached_question ?? ""
+              })
             }
           : null,
       next_room_clue:
@@ -1061,7 +1074,7 @@ export async function startGame(teamId: string) {
     runes_collected: runeCount,
     hint_credits_remaining: hintCredits,
     story_intro:
-      "Nexus and Amiphoria need your team to rebuild the shattered Vault key. Solve technical puzzles, decode clues, recover fragments, and stop the city-wide blackout before the final timer expires.",
+      "Rogue AI NULL has fragmented the university network into physical nodes. Scan room QRs, solve technical challenges, decode clues, and restore node integrity before final timer expiry.",
     story_mission: buildStoryMission({ collected: 0, required: requiredFragments }),
     story_chapter: storyChapterForCount(0),
     route_briefing: buildRouteBriefing({
@@ -1143,7 +1156,7 @@ export async function scanRoom(teamId: string, roomCode: string) {
 
     if (equalsCode(parsedRoomCode, finalKeyCodes.rapidQr)) {
       if (!finalKeyState.dual_key_ready) {
-        throw new ApiError(409, "Rapid-fire chamber locked. Scan NEXUS and AMIPHORIA key shards first, then scan Fire QR.");
+        throw new ApiError(409, "Rapid-fire chamber locked. Scan Key Shard A and Key Shard B first, then scan Fire QR.");
       }
       const rapidStarted = await updateTeamWithVersion(team.id, team.version, {
         phase: "rapid_fire",
@@ -1183,7 +1196,7 @@ export async function scanRoom(teamId: string, roomCode: string) {
       };
     }
 
-    throw new ApiError(409, "Final key stage active. Scan NEXUS, AMIPHORIA, then Fire QR (rapid-fire gate).");
+    throw new ApiError(409, "Final key stage active. Scan Key Shard A, Key Shard B, then Fire QR (rapid-fire gate).");
   }
 
   if (startsWithCode(parsedRoomCode, `${event.id}-POWER-`)) {
@@ -1279,7 +1292,7 @@ export async function scanRoom(teamId: string, roomCode: string) {
     equalsCode(parsedRoomCode, finalKeyCodes.rapidQr)
   ) {
     if (!finalKeyState.gate_ready) {
-      throw new ApiError(409, "Final key QRs are locked. Reach the final checkpoint first, then scan NEXUS/AMIPHORIA/Fire.");
+      throw new ApiError(409, "Final key QRs are locked. Reach the final checkpoint first, then scan Key Shard A/Key Shard B/Fire.");
     }
     throw new ApiError(409, "Final key stage not active yet. Continue normal progression before scanning final key QRs.");
   }
@@ -1302,7 +1315,7 @@ export async function scanRoom(teamId: string, roomCode: string) {
           room_number: room.room_number,
           room_code: room.room_code,
           difficulty_level: trapQuestion.difficulty_level,
-          question_text: trapQuestion.question_text
+          question_text: roomQuestionText({ room, question: trapQuestion.question_text })
         },
         message: "Trap challenge active.",
         clue_style: computeClueStyle(trapQuestion.difficulty_level),
@@ -1389,7 +1402,7 @@ export async function scanRoom(teamId: string, roomCode: string) {
         room_number: room.room_number,
         room_code: room.room_code,
         difficulty_level: trapQuestion.difficulty_level,
-        question_text: trapQuestion.question_text
+        question_text: roomQuestionText({ room, question: trapQuestion.question_text })
       },
       message: `Trap challenge engaged (${trapClass.replace("_", " ")}).`,
       trap_class: trapClass,
@@ -1427,7 +1440,7 @@ export async function scanRoom(teamId: string, roomCode: string) {
       room_number: room.room_number,
       room_code: room.room_code,
       difficulty_level: question.difficulty_level,
-      question_text: question.cached_question
+      question_text: roomQuestionText({ room, question: question.cached_question })
     },
     message: "Room validated",
     clue_style: computeClueStyle(question.difficulty_level),
@@ -1927,7 +1940,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       if (!held) throw new ApiError(409, "Concurrent final-lock update");
       return {
         completed: false,
-        message: "Final vault lock active. Recover more story fragments and decode the clue to retry the final room.",
+        message: "Final node lock active. Recover more node fragments and decode the clue to retry the final room.",
         fragment_unlocked: fragment ?? undefined,
         fragment_bonus_points: storyPoints,
         milestone_reward: milestoneReward ?? undefined,
@@ -1968,7 +1981,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
       completed: false,
       rapid_fire_ready: true,
       message:
-        "Final vault route unlocked. Scan both key shards (Nexus and Amiphoria), then scan the rapid-fire chamber QR.",
+        "Final route unlocked. Scan both key shards (A and B), then scan the rapid-fire chamber QR.",
       fragment_unlocked: fragment ?? undefined,
       fragment_bonus_points: storyPoints,
       milestone_reward: milestoneReward ?? undefined,
@@ -2342,3 +2355,4 @@ export async function selectRapidCategory(teamId: string, category: RapidCategor
     }
   };
 }
+

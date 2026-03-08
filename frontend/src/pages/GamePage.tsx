@@ -201,35 +201,35 @@ function parseApiError(err: unknown): { status: number; message: string } {
 const STORY_ARCS = [
   {
     id: "act1",
-    title: "Act I: City in Darkness",
+    title: "Act I: Node Breach",
     range: [0, 2] as const,
-    stake: "The blackout spreads block by block. You are not playing for points; you are buying time for the city.",
-    nexus_line: "NEXUS: We only get one clean route through this chaos. Stay precise.",
-    amiphoria_line: "AMIPHORIA: Decode slowly, move quickly. Mistakes feed the Architect."
+    stake: "NULL is spreading corruption node by node. Precision keeps the network alive.",
+    nexus_line: "MISSION CONTROL: Validate each clue packet before movement.",
+    amiphoria_line: "NULL WATCH: Slow decode, fast execution. Sloppy answers feed NULL."
   },
   {
     id: "act2",
-    title: "Act II: The Architect's Maze",
+    title: "Act II: Corrupted Grid",
     range: [3, 5] as const,
-    stake: "The Vault now adapts to your behavior. Every wrong turn teaches it how to trap you.",
-    nexus_line: "NEXUS: It predicts patterns. Break your rhythm when needed.",
-    amiphoria_line: "AMIPHORIA: Trust your team roles. Solo instincts fail inside adaptive systems."
+    stake: "The grid adapts to your behavior. Every wrong turn trains NULL's trap model.",
+    nexus_line: "MISSION CONTROL: Break predictable patterns when traps intensify.",
+    amiphoria_line: "NULL WATCH: Keep role discipline. Solo play fails in adaptive systems."
   },
   {
     id: "act3",
-    title: "Act III: Key Fracture War",
+    title: "Act III: Key Shard Sync",
     range: [6, 7] as const,
-    stake: "Nexus and Amiphoria key shards must be reunited, or the rapid chamber never opens.",
-    nexus_line: "NEXUS: My shard alone is useless. We need both signatures.",
-    amiphoria_line: "AMIPHORIA: Find me. Scan me. Then run for the override."
+    stake: "Both key shards must be synced, or the rapid override chamber stays locked.",
+    nexus_line: "MISSION CONTROL: One shard is insufficient. We need both signatures.",
+    amiphoria_line: "NULL WATCH: Acquire both shard scans, then sprint to Fire QR."
   },
   {
     id: "act4",
-    title: "Act IV: Final Override",
+    title: "Act IV: Core Terminal Override",
     range: [8, 99] as const,
-    stake: "The city firewall is unstable. Rapid-fire is the final override before complete collapse.",
-    nexus_line: "NEXUS: This is the last gate. No hesitation.",
-    amiphoria_line: "AMIPHORIA: One clean chain of answers and we bring the grid back."
+    stake: "Core integrity is unstable. Rapid-fire is your final override before total takeover.",
+    nexus_line: "MISSION CONTROL: Final gate online. No hesitation.",
+    amiphoria_line: "NULL WATCH: One clean answer chain restores the network."
   }
 ];
 
@@ -944,16 +944,16 @@ export function GamePage() {
     [collectedFragments]
   );
   const transmissions = [
-    "NEXUS: Route memory unstable. Validate each clue before movement.",
-    "AMIPHORIA: Architect heuristic shifted. Keep your answer inputs clean.",
-    "NEXUS: Rival teams detected nearby. Maintain objective discipline.",
-    "AMIPHORIA: Firewall pressure rising. Fragments now critical."
+    "MISSION CONTROL: Route memory unstable. Validate each clue before movement.",
+    "NULL WATCH: Adversary heuristics shifted. Keep inputs clean.",
+    "MISSION CONTROL: Rival agents detected nearby. Maintain objective discipline.",
+    "NULL WATCH: Firewall pressure rising. Node fragments are now critical."
   ];
   const missionChecklist = [
     { label: "First fragment recovered", done: (storyMission?.collected_fragments ?? 0) >= 1 },
     { label: "Rapid unlock threshold reached", done: Boolean(storyMission?.rapid_unlock_ready) },
-    { label: "Nexus key shard scanned", done: Boolean(finalKeyState?.nexus_scanned) },
-    { label: "Amiphoria key shard scanned", done: Boolean(finalKeyState?.amiphoria_scanned) },
+    { label: "Key Shard A scanned", done: Boolean(finalKeyState?.nexus_scanned) },
+    { label: "Key Shard B scanned", done: Boolean(finalKeyState?.amiphoria_scanned) },
     { label: "Dual key gate confirmed", done: Boolean(finalKeyState?.dual_key_ready) }
   ];
 
@@ -963,7 +963,7 @@ export function GamePage() {
       {!simpleMode && <div className="game-scanline-overlay" />}
 
       <div className="hud-panel fade-rise mb-3 rounded-3xl border border-cyan-200/20 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-indigo-500/10 p-4">
-        <p className="text-[10px] uppercase tracking-[0.35em] text-cyan-200">Nexus Protocol // Scan to Survive</p>
+        <p className="text-[10px] uppercase tracking-[0.35em] text-cyan-200">Operation: Firewall // Team Console</p>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-semibold md:text-3xl">{getTeamName() ?? "Team"}</h1>
           <p className="rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
@@ -1012,7 +1012,7 @@ export function GamePage() {
             <div className="mt-2 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100">
               {tutorialStep === 1 && "Step 1: Runner scans room QR. Navigator waits for challenge to appear here."}
               {tutorialStep === 2 && "Step 2: Navigator submits answer, then both decode the clue to infer the next room number."}
-              {tutorialStep === 3 && "Step 3: After progression, scan NEXUS key + AMIPHORIA key, then FIRE QR to start rapid-fire in-app."}
+              {tutorialStep === 3 && "Step 3: After progression, scan Key Shard A + Key Shard B, then FIRE QR to start rapid-fire in-app."}
               {tutorialStep === 4 && "Step 4: Multi-device is allowed, but avoid duplicate scans and maintain role discipline under timer pressure."}
             </div>
             <div className="mt-3 flex gap-2">
@@ -1045,7 +1045,7 @@ export function GamePage() {
           <article className="operator-card rounded-3xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-cyan-200">NEXUS-7 // Route AI</p>
+                <p className="text-xs uppercase tracking-[0.25em] text-cyan-200">MISSION CONTROL // Route AI</p>
                 <p className="text-sm text-slate-200">Decoding stream online. Trust signal integrity over speed.</p>
               </div>
               <div className="avatar-core avatar-core-cyan" />
@@ -1054,7 +1054,7 @@ export function GamePage() {
           <article className="operator-card rounded-3xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">AMIPHORIA-OS // Field Guide</p>
+                <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">NULL WATCH // Field Guide</p>
                 <p className="text-sm text-slate-200">Cross-check clue layers before moving to the next checkpoint.</p>
               </div>
               <div className="avatar-core avatar-core-emerald" />
@@ -1137,8 +1137,8 @@ export function GamePage() {
           <p className="mt-1 text-sm">{bossBadge ?? "No boss bonus yet"}</p>
         </div>
         <div className="glass-card rounded-2xl p-3">
-          <p className="text-xs text-slate-300">Story Chapter</p>
-          <p className="mt-1 text-sm">{storyChapter ?? "Act I: Broken Vault"}</p>
+          <p className="text-xs text-slate-300">Mission Chapter</p>
+          <p className="mt-1 text-sm">{storyChapter ?? "Act I: Node Breach"}</p>
         </div>
       </section>
       )}
@@ -1177,7 +1177,7 @@ export function GamePage() {
         <article className="glass-card rounded-2xl border border-amber-300/30 bg-amber-500/10 p-3">
           <p className="text-[11px] uppercase tracking-[0.2em] text-amber-100">{t.missionFlow}</p>
           <p className="mt-1 text-xs text-slate-100">
-            1) Scan room QR  2) Submit technical answer and decode clue room no  3) Scan NEXUS key QR  4) Scan AMIPHORIA key QR  5) Scan FIRE QR (rapid gate) to start rapid-fire inside this app.
+            1) Scan room QR  2) Submit technical answer and decode clue room no  3) Scan Key Shard A QR  4) Scan Key Shard B QR  5) Scan FIRE QR (rapid gate) to start rapid-fire inside this app.
           </p>
         </article>
       </section>
@@ -1304,7 +1304,7 @@ export function GamePage() {
               </p>
               <p className={`text-xs ${storyMission.rapid_unlock_ready ? "text-emerald-300" : "text-amber-300"}`}>
                 {storyMission.rapid_unlock_ready
-                  ? "Rapid-fire vault condition met"
+                  ? "Rapid-fire gate condition met"
                   : `Next target fragment: ${storyMission.next_fragment_title ?? "Unknown"}`}
               </p>
               {storyMission.next_artifact && !storyMission.rapid_unlock_ready && (
@@ -1318,13 +1318,13 @@ export function GamePage() {
             <>
               <div className="my-3 h-px bg-white/10" />
               <p className="text-xs text-slate-300">Final Key Gate</p>
-              <p className="text-xs text-slate-200">Nexus: {finalKeyState.nexus_scanned ? "Scanned" : "Pending"}</p>
-              <p className="text-xs text-slate-200">Amiphoria: {finalKeyState.amiphoria_scanned ? "Scanned" : "Pending"}</p>
+              <p className="text-xs text-slate-200">Key Shard A: {finalKeyState.nexus_scanned ? "Scanned" : "Pending"}</p>
+              <p className="text-xs text-slate-200">Key Shard B: {finalKeyState.amiphoria_scanned ? "Scanned" : "Pending"}</p>
               <p className="text-xs text-slate-200">Fire QR (Rapid Gate): {finalKeyState.rapid_qr_code_hint}</p>
               {finalKeyBrief && (
                 <div className="mt-2 space-y-1 rounded-xl border border-cyan-300/20 bg-cyan-500/5 p-2">
-                  <p className="text-[10px] text-cyan-100">Nexus clue: {finalKeyBrief.nexus.clue}</p>
-                  <p className="text-[10px] text-cyan-100">Amiphoria clue: {finalKeyBrief.amiphoria.clue}</p>
+                  <p className="text-[10px] text-cyan-100">Key Shard A clue: {finalKeyBrief.nexus.clue}</p>
+                  <p className="text-[10px] text-cyan-100">Key Shard B clue: {finalKeyBrief.amiphoria.clue}</p>
                   <p className="text-[10px] text-cyan-100">Rapid gate clue: {finalKeyBrief.rapid_gate.clue}</p>
                 </div>
               )}
@@ -1391,7 +1391,7 @@ export function GamePage() {
         <article className="glass-card hud-panel rounded-3xl p-4">
           <p className="mb-2 text-xs uppercase tracking-[0.25em] text-slate-300">Story Fragments Collected</p>
           {fragments.length === 0 ? (
-            <p className="text-sm text-slate-300">Solve puzzles to reveal fragments of the fractured vault story.</p>
+            <p className="text-sm text-slate-300">Solve puzzles to reveal node-fragment telemetry from the corrupted grid.</p>
           ) : (
             <div className="grid gap-2 sm:grid-cols-2">
               {fragments.map((fragment, index) => (
@@ -1451,4 +1451,5 @@ export function GamePage() {
     </main>
   );
 }
+
 

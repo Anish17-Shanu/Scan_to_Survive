@@ -44,7 +44,7 @@ type RehearsalTeam = {
 
 const PHASE_ACTIONS = {
   main: ["scanned room", "submitted answer", "decoded clue", "moved to next room"],
-  final_keys: ["scanned NEXUS key", "scanned AMIPHORIA key", "validated dual-key gate", "scanned FIRE QR"],
+  final_keys: ["scanned Key Shard A", "scanned Key Shard B", "validated dual-key gate", "scanned FIRE QR"],
   rapid_fire: ["answered rapid question", "combo streak +1", "precision answer", "jackpot window active"],
   completed: ["mission complete", "final score locked", "awaiting podium reveal", "debrief packet generated"]
 } as const;
@@ -231,3 +231,4 @@ export function SpectatorPage() {
     </main>
   );
 }
+

@@ -43,6 +43,7 @@ import { elapsedSeconds } from "../utils/time.js";
 import { hashPassword } from "../utils/password.js";
 import { ApiError } from "../utils/apiError.js";
 import { buildFinalKeyCodes, pickFinalKeyAnchors } from "../utils/finalKeyPlan.js";
+import { resolveNodeIdentity, resolveNodeStatus, resolveNodeStatusStory } from "../utils/roomNodeIdentity.js";
 
 const eventConfigSchema = z.object({
   total_teams: z.number().int().min(5).max(200),
@@ -74,6 +75,85 @@ const GLOBAL_PULSES = [
   { id: "safe_corridor", label: "Safe Corridor" },
   { id: "hint_storm", label: "Hint Storm" }
 ] as const;
+
+function roomNodeMeta(input: {
+  room: {
+    room_number: string;
+    floor: number;
+    is_entry: boolean;
+    is_final: boolean;
+    is_trap: boolean;
+  };
+}) {
+  return {
+    node_identity: resolveNodeIdentity(input.room),
+    system_status: resolveNodeStatus(input.room),
+    status_story: resolveNodeStatusStory(input.room)
+  };
+}
+
+function buildQrDisplayText(input: {
+  room_number: string;
+  node_identity: string;
+  system_status: string;
+  status_story: string;
+}) {
+  return [
+    "NODE DETECTED",
+    "",
+    `Room: ${input.room_number}`,
+    `Node Identity: ${input.node_identity}`,
+    "",
+    `SYSTEM STATUS: ${input.system_status}`,
+    "",
+    input.status_story
+  ].join("\n");
+}
+
+function clueHintReference() {
+  return [
+    {
+      clue_style: "cipher",
+      hints: [
+        "Inverse digit shift by -3 (mod 10).",
+        "Decode per digit, not as full integer.",
+        "Preserve original digit order."
+      ]
+    },
+    {
+      clue_style: "binary",
+      hints: [
+        "Split into fixed-size binary blocks.",
+        "Convert each block to one digit character.",
+        "Concatenate converted digits in order."
+      ]
+    },
+    {
+      clue_style: "logic",
+      hints: [
+        "Use the arithmetic relation exactly as shown.",
+        "Isolate unknown room token.",
+        "Cross-check with floor context."
+      ]
+    },
+    {
+      clue_style: "code-snippet",
+      hints: [
+        "Apply the described transformation literally.",
+        "Ignore code syntax beyond the transform operation.",
+        "Stop after one transform pass."
+      ]
+    },
+    {
+      clue_style: "pattern",
+      hints: [
+        "Use start/end anchors first.",
+        "Reconstruct mirrored token carefully.",
+        "Validate room-number format before scan."
+      ]
+    }
+  ] as const;
+}
 let adminMonitorCache: { eventId: string; generatedAt: number; payload: unknown } | null = null;
 
 async function isResultsLocked(eventId: string): Promise<boolean> {
@@ -1040,6 +1120,15 @@ export async function adminOpsPackage() {
     .slice()
     .sort((a, b) => a.floor - b.floor || a.room_number.localeCompare(b.room_number))
     .map(async (room) => {
+      const node = roomNodeMeta({
+        room: {
+          room_number: room.room_number,
+          floor: room.floor,
+          is_entry: room.is_entry,
+          is_final: room.is_final,
+          is_trap: room.is_trap
+        }
+      });
       const zone = placementZone({
         isEntry: room.is_entry,
         isFinal: room.is_final,
@@ -1059,6 +1148,14 @@ export async function adminOpsPackage() {
         room_type: room.is_entry ? "entry" : room.is_final ? "final" : room.is_trap ? "trap" : "puzzle",
         path_name: room.path_id ? pathById.get(room.path_id)?.path_name ?? null : null,
         order_number: room.order_number,
+        node_identity: node.node_identity,
+        system_status: node.system_status,
+        qr_display_text: buildQrDisplayText({
+          room_number: room.room_number,
+          node_identity: node.node_identity,
+          system_status: node.system_status,
+          status_story: node.status_story
+        }),
         placement_zone: zone,
         placement_note: placementNote(zone)
       };
@@ -1124,16 +1221,16 @@ export async function adminOpsPackage() {
     {
       code: finalKeyCodes.nexus,
       type: "final_key",
-      effect: "Nexus key shard (required before rapid-fire)",
+      effect: "Key Shard A (required before rapid-fire)",
       recommended_placement: "door",
-      clue: "NEXUS shard anchor"
+      clue: "Key Shard A anchor"
     },
     {
       code: finalKeyCodes.amiphoria,
       type: "final_key",
-      effect: "Amiphoria key shard (required before rapid-fire)",
+      effect: "Key Shard B (required before rapid-fire)",
       recommended_placement: "desk",
-      clue: "AMIPHORIA shard anchor"
+      clue: "Key Shard B anchor"
     },
     {
       code: finalKeyCodes.rapidQr,
@@ -1196,6 +1293,18 @@ export async function adminOpsPackage() {
     final_keys: final_key_qr_plan.map((f) => f.code)
   };
 
+  const questionBank = buildBeginnerQuestionBank(event.id, 200);
+  const question_hint_bank = questionBank.map((q) => ({
+    difficulty_level: q.difficulty_level,
+    category: q.category,
+    question: q.question_text,
+    hint_primary: q.hint_primary,
+    hint_secondary: q.hint_secondary,
+    hint_tertiary: q.hint_tertiary,
+    hint_quaternary: q.hint_quaternary,
+    hint_quinary: q.hint_quinary
+  }));
+
   return {
     event: {
       id: event.id,
@@ -1203,11 +1312,11 @@ export async function adminOpsPackage() {
       total_teams: event.total_teams
     },
     storyline: {
-      title: "Nexus Protocol: Scan to Survive",
+      title: "Operation: Firewall // Scan to Survive",
       intro:
-        "At 02:17 the city grid collapsed. A rogue Architect AI sealed the recovery protocol inside a live Vault spread across your building. Teams must recover story fragments, decode route clues, and reactivate power before total signal loss.",
+        "A rogue AI called NULL has infiltrated the university network and fragmented it into physical system nodes across your building. Teams must restore node integrity, decode route clues, and contain NULL before total system loss.",
       objective:
-        "Rebuild the Vault key fragment-by-fragment, survive trap corridors, reunite Nexus + Amiphoria key shards, and complete the rapid-fire override to restore the city."
+        "Rebuild the core access key shard-by-shard, survive corrupted trap nodes, reunite Key Shard A + Key Shard B, and complete rapid-fire override to restore the network."
     },
     instructions: [
       "Scan room QR, solve technical question, then decode the clue packet for your next room.",
@@ -1215,7 +1324,7 @@ export async function adminOpsPackage() {
       "Trap QR can add penalty without moving your path.",
       "Use hints carefully; each hint adds penalty.",
       "After final room, rapid-fire does not start immediately.",
-      "Teams must scan FINAL-KEY-NEXUS and FINAL-KEY-AMIPHORIA, then scan RAPID-FIRE-QR.",
+      "Teams must scan both final key shard QRs, then scan RAPID-FIRE-QR.",
       "Rapid-fire round lasts for 5 minutes after rapid gate scan.",
       "Only hide QR cards on desk or door as specified in placement plan.",
       "Bonus QRs are optional support nodes: POWER (shield/pulse/score/hint) and RUNE collectibles.",
@@ -1224,15 +1333,20 @@ export async function adminOpsPackage() {
     final_key_qr_plan,
     bonus_qr_plan,
     print_bundles,
+    clue_hint_reference: clueHintReference(),
+    question_hint_bank,
     offline_fallback_packet,
     qr_placement_plan: placement,
     trap_rooms: placement.filter((p) => p.room_type === "trap"),
     print_cards: [
       ...placement.map((p) => ({
-        title: `${p.room_number} | Floor ${p.floor} | ${String(p.path_name ?? "COMMON").toUpperCase()}`,
+        title: `${p.room_number} | ${p.node_identity} | ${String(p.system_status).toUpperCase()}`,
         room_number: p.room_number,
         floor: p.floor,
         room_type: p.room_type,
+        node_identity: p.node_identity,
+        system_status: p.system_status,
+        qr_display_text: p.qr_display_text,
         placement_zone: p.placement_zone,
         placement_note: p.placement_note,
         qr_code_payload: p.qr_code_payload,
@@ -1288,7 +1402,7 @@ function buildWinnerRewards(input: {
 }) {
   const rankMeta: Record<number, { title: string; reward: string; aura: string }> = {
     1: {
-      title: "Vault Sovereign",
+      title: "Guardian of the Network",
       reward: "Champion NFT-style digital seal + control-room spotlight",
       aura: "platinum"
     },
@@ -1641,10 +1755,10 @@ export async function adminStoryRouteReview() {
   return {
     event_id: event.id,
     storyline_acts: [
-      { act: "Act I: City in Darkness", orders: [1, 2] },
-      { act: "Act II: Architect's Maze", orders: [3, 4, 5] },
-      { act: "Act III: Key Fracture War", orders: [6, 7, 8] },
-      { act: "Act IV: Final Override", orders: ["NEXUS_KEY", "AMIPHORIA_KEY", "FIRE_QR", "RAPID_FIRE"] }
+      { act: "Act I: Node Breach", orders: [1, 2] },
+      { act: "Act II: Corrupted Grid", orders: [3, 4, 5] },
+      { act: "Act III: Key Shard Sync", orders: [6, 7, 8] },
+      { act: "Act IV: Core Terminal Override", orders: ["KEY_SHARD_A", "KEY_SHARD_B", "FIRE_QR", "RAPID_FIRE"] }
     ],
     route_by_path
   };
@@ -1880,10 +1994,10 @@ export async function teamMissionDebrief(teamId: string) {
   if (team.rapid_fire_score >= 4) badges.push("Rapid Specialist");
   if (team.penalty_seconds <= 90) badges.push("Precision Route");
   if (team.story_fragments_collected >= 6) badges.push("Lorebreaker");
-  if (badges.length === 0) badges.push("Vault Survivor");
+  if (badges.length === 0) badges.push("Network Survivor");
 
   let codename = "Signal Runner";
-  if (rank === 1) codename = "Vault Sovereign";
+  if (rank === 1) codename = "Guardian of the Network";
   else if (rank === 2) codename = "Cipher Vanguard";
   else if (rank === 3) codename = "Pulse Sentinel";
   else if ((rank ?? 99) <= 10) codename = "Firewall Contender";
@@ -1920,9 +2034,10 @@ export async function teamMissionDebrief(teamId: string) {
       firstScan ? { label: "Mission entered", at: firstScan.timestamp } : null,
       firstFragment ? { label: "First fragment recovered", at: firstFragment.timestamp } : null,
       firstTrap ? { label: "First trap triggered", at: firstTrap.timestamp } : null,
-      finalKeyNexus ? { label: "Nexus key shard scanned", at: finalKeyNexus.timestamp } : null,
-      finalKeyAmiphoria ? { label: "Amiphoria key shard scanned", at: finalKeyAmiphoria.timestamp } : null,
+      finalKeyNexus ? { label: "Key Shard A scanned", at: finalKeyNexus.timestamp } : null,
+      finalKeyAmiphoria ? { label: "Key Shard B scanned", at: finalKeyAmiphoria.timestamp } : null,
       rapidGate ? { label: "Rapid-fire gate opened", at: rapidGate.timestamp } : null
     ].filter(Boolean)
   };
 }
+

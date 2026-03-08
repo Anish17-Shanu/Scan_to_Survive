@@ -171,27 +171,27 @@ export function FinishPage() {
       <section className="finish-shell mx-auto w-full max-w-6xl rounded-[2rem] p-5 md:p-8">
         <div className="finish-grid-layer" />
         <div className="relative z-10">
-          <p className="finish-kicker">Amiphoria Nexus // Mission Debrief</p>
-          <h1 className="finish-title mt-3">{finaleMode ? "Grand Finale Unlocked" : `Extraction Complete, ${teamName}`}</h1>
+          <p className="finish-kicker">Operation: Firewall // Restoration Debrief</p>
+          <h1 className="finish-title mt-3">{finaleMode ? "System Restoration Complete" : `Node Recovery Complete, ${teamName}`}</h1>
           <p className="mt-3 max-w-3xl text-slate-200">
             {finaleMode
-              ? "Control room has completed the event. Final champions are now live."
-              : "Your run has been sealed into the vault ledger. Final standings unlock when control room reveals the board."}
+              ? "All corrupted nodes are repaired. NULL has been neutralized."
+              : "Your run has been sealed into the restoration ledger. Final standings unlock when control room reveals the board."}
           </p>
           <p className="mt-2 max-w-3xl text-sm text-slate-300">
-            Whatever your rank, your team crossed a live narrative: city blackout, adaptive vault traps, fractured-key reunion,
-            and final override pressure. This was a systems battle, not just a quiz.
+            Whatever your rank, your team executed a live cyber mission: corrupted node recovery, trap containment,
+            key-shard convergence, and core terminal override. This was a systems operation, not just a quiz.
           </p>
           {notice && <p className="mt-2 text-sm text-amber-300">{notice}</p>}
         </div>
 
         <div className="relative z-10 mt-5 grid gap-4 lg:grid-cols-3">
           <article className="finish-card lg:col-span-2">
-            <p className="text-xs uppercase tracking-[0.26em] text-cyan-200/80">Outcome Signal</p>
+            <p className="text-xs uppercase tracking-[0.26em] text-cyan-200/80">Restoration Signal</p>
             {!visible ? (
               <div className="mt-3">
                 <p className="finish-wait pulse-ring text-lg font-semibold text-cyan-100">
-                  {loading ? "Syncing control-room signal..." : "Leaderboard locked. Reveal pending."}
+                  {loading ? "Syncing control-room signal..." : "Leaderboard locked. Final reveal pending."}
                 </p>
                 <p className="mt-2 text-sm text-slate-300">
                   Keep this screen open. Rankings can unlock any moment.
@@ -292,7 +292,7 @@ export function FinishPage() {
 
         {visible && rows.length > 0 && !showSequenceSpotlight && (
           <div className="relative z-10 mt-5 overflow-x-auto rounded-2xl border border-cyan-200/20 bg-slate-900/45 p-3">
-            <h2 className="mb-2 text-xl font-semibold text-cyan-100">Vault Leaderboard</h2>
+            <h2 className="mb-2 text-xl font-semibold text-cyan-100">Network Leaderboard</h2>
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="text-slate-300">

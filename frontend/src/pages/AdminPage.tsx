@@ -557,7 +557,7 @@ export function AdminPage() {
   const revealFinale = async () => {
     audioManager.play("reveal_drum");
     await api.post("/admin/reveal-finale-sequence");
-    setMessage("Grand Finale sequence started: 3rd -> 2nd -> 1st, then full board.");
+    setMessage("Result reveal sequence started: 3rd -> 2nd -> 1st, then full board.");
     await refreshLeaderboard();
   };
 
@@ -749,7 +749,7 @@ export function AdminPage() {
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Amiphoria Nexus - Scan to Survive QR Cards</title>
+    <title>Operation Firewall - Scan to Survive QR Cards</title>
     <style>
       @page { size: A4 portrait; margin: 0; }
       * { box-sizing: border-box; }
@@ -850,7 +850,7 @@ export function AdminPage() {
 
       <div className="hud-panel fade-rise mb-4 flex items-center justify-between rounded-3xl px-2 py-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-300">Nexus Protocol</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-300">Operation: Firewall</p>
           <h1 className="text-3xl font-semibold">Scan to Survive Control Room</h1>
         </div>
         <div className="flex gap-2">
@@ -912,7 +912,7 @@ export function AdminPage() {
         <article className="operator-card rounded-3xl p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-cyan-200">CONTROL AI // NEXUS PRIME</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-cyan-200">MISSION CONTROL // NODE COMMAND</p>
               <p className="text-sm text-slate-200">Live telemetry stable. Monitoring fairness and key-sequence integrity.</p>
             </div>
             <div className="avatar-core avatar-core-cyan" />
@@ -921,7 +921,7 @@ export function AdminPage() {
         <article className="operator-card rounded-3xl p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">TACTICAL AI // AMIPHORIA NODE</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">NULL WATCH // THREAT FEED</p>
               <p className="text-sm text-slate-200">Ceremony channel armed. Top-3 reveal and reward verification online.</p>
             </div>
             <div className="avatar-core avatar-core-emerald" />
@@ -1053,7 +1053,7 @@ export function AdminPage() {
             Cue 4: Reveal sequence and winner display handoff.
           </p>
           <p className="mt-2 text-xs text-slate-300">
-            Current phase: {finaleMode ? "Finale active" : monitor?.event?.is_paused ? "Preflight / Paused" : "Live gameplay"}
+            Current phase: {finaleMode ? "Restoration complete" : monitor?.event?.is_paused ? "Preflight / Paused" : "Live gameplay"}
           </p>
           {rehearsalMode && (
             <p className="mt-2 text-xs text-amber-200">
@@ -1290,11 +1290,11 @@ export function AdminPage() {
         </article>
 
         <article className="glass-card fade-rise rounded-3xl p-5">
-          <h2 className="mb-3 text-lg font-semibold">Final Key Supervision</h2>
+          <h2 className="mb-3 text-lg font-semibold">Key Shard Supervision</h2>
           <div className="max-h-56 overflow-auto space-y-2 text-xs text-slate-200">
             {(monitor?.final_key_supervision ?? []).map((row) => (
               <div key={row.team_id} className="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-2">
-                {row.team_id} | Nexus: {row.nexus ?? "-"} | Amiphoria: {row.amiphoria ?? "-"} | Rapid Gate: {row.rapid_gate_scan ?? "-"}
+                {row.team_id} | Key Shard A: {row.nexus ?? "-"} | Key Shard B: {row.amiphoria ?? "-"} | Rapid Gate: {row.rapid_gate_scan ?? "-"}
               </div>
             ))}
           </div>
@@ -1305,7 +1305,7 @@ export function AdminPage() {
       <section className="mb-4 grid gap-4 lg:grid-cols-2">
         <article className="glass-card fade-rise rounded-3xl p-5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Amiphoria Nexus Storyline & Instructions</h2>
+            <h2 className="text-lg font-semibold">Operation: Firewall Storyline & Instructions</h2>
             <button className="ghost-btn" onClick={refreshOpsPackage}>
               Refresh Package
             </button>
@@ -1669,7 +1669,7 @@ export function AdminPage() {
 
         <article className="glass-card fade-rise overflow-x-auto rounded-3xl p-5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Finale Control (Top 3)</h2>
+            <h2 className="text-lg font-semibold">Result Control (Top 3)</h2>
             <div className="flex gap-2">
               <button className="ghost-btn" onClick={refreshLeaderboard}>
                 Refresh
@@ -1681,7 +1681,7 @@ export function AdminPage() {
           </div>
           {finaleMode && topThree.length > 0 && (
             <div className="mb-3 rounded-2xl border border-fuchsia-300/40 bg-fuchsia-500/10 p-3 text-sm">
-              <p className="text-fuchsia-200">Finale Mode Active: Event completed and top 3 announced.</p>
+              <p className="text-fuchsia-200">Result Mode Active: Event completed and top 3 announced.</p>
               {finaleSequenceMode && <p className="mt-1 text-amber-200">Sequence Mode: Timed reveal is active for team screens.</p>}
               {finaleSequenceMode && finaleSequencePhase !== "done" && finaleSpotlight && (
                 <div className="mt-2 rounded-xl border border-amber-300/40 bg-amber-500/10 p-2 text-amber-100">
@@ -1700,3 +1700,4 @@ export function AdminPage() {
     </main>
   );
 }
+
