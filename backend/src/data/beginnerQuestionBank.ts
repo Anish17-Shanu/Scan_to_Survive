@@ -389,11 +389,65 @@ function curatedQuestionHints(entry: BankEntry): {
       quinary: variantHint
     };
   }
+  if (entry.category === "fundamentals") {
+    return {
+      primary: "Node hint: core computer terminology is expected.",
+      secondary: "Use the standard textbook term or expansion only.",
+      tertiary: "Keep the response short (term/acronym only).",
+      quaternary: formatHint,
+      quinary: variantHint
+    };
+  }
+  if (entry.category === "digital-life") {
+    return {
+      primary: "Node hint: this is a common everyday digital/security tool concept.",
+      secondary: "Think of the exact product/protocol name used in real apps.",
+      tertiary: "Avoid descriptive phrases; submit the recognized token.",
+      quaternary: formatHint,
+      quinary: variantHint
+    };
+  }
+  if (entry.category === "coding-basic" || entry.category === "coding") {
+    return {
+      primary: "Node hint: core programming concept/output expected.",
+      secondary: "Answer with the exact concept name or computed value.",
+      tertiary: "Do not include reasoning steps.",
+      quaternary: formatHint,
+      quinary: variantHint
+    };
+  }
+  if (entry.category === "git") {
+    return {
+      primary: "Node hint: version-control command or term expected.",
+      secondary: "Use canonical Git syntax/term.",
+      tertiary: "Include flags/subcommand only when required by the prompt.",
+      quaternary: formatHint,
+      quinary: variantHint
+    };
+  }
+  if (entry.category === "os") {
+    return {
+      primary: "Node hint: operating-system command/process concept expected.",
+      secondary: "Return the exact Linux/OS token asked in the prompt.",
+      tertiary: "Keep answer concise (single command/term).",
+      quaternary: formatHint,
+      quinary: variantHint
+    };
+  }
+  if (entry.category === "security") {
+    return {
+      primary: "Node hint: cybersecurity concept/attack/defense token expected.",
+      secondary: "Use the industry-standard security term or acronym.",
+      tertiary: "Avoid examples or long explanation text.",
+      quaternary: formatHint,
+      quinary: variantHint
+    };
+  }
 
   return {
-    primary: `Node hint: target concept is in ${entry.category}.`,
-    secondary: "Return the shortest exact technical term matching the concept.",
-    tertiary: "Avoid descriptive sentences.",
+    primary: "Node hint: exact technical term expected.",
+    secondary: "Use the canonical term/token directly tied to the prompt.",
+    tertiary: "Avoid generic descriptive sentences.",
     quaternary: formatHint,
     quinary: variantHint
   };
