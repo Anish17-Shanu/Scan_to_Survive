@@ -39,6 +39,7 @@ import {
   updateTeamWithVersion
 } from "../repositories/teamRepo.js";
 import { getPerformanceMetrics } from "./telemetryService.js";
+import { sweepEventTimeoutIfNeeded } from "./eventTimeoutService.js";
 import { elapsedSeconds } from "../utils/time.js";
 import { hashPassword } from "../utils/password.js";
 import { ApiError } from "../utils/apiError.js";
@@ -623,6 +624,7 @@ async function buildPostGameAnalytics(eventId: string) {
 }
 
 export async function adminMonitor() {
+  await sweepEventTimeoutIfNeeded("admin_monitor");
   const event = await getActiveEvent();
   if (!event) throw new ApiError(404, "No active event");
   const now = Date.now();

@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { getActiveEvent } from "../repositories/eventRepo.js";
 import { findTeamById, updateTeamWithVersion } from "../repositories/teamRepo.js";
+import { sweepEventTimeoutIfNeeded } from "../services/eventTimeoutService.js";
 import { ApiError } from "../utils/apiError.js";
 import { elapsedSeconds } from "../utils/time.js";
 
@@ -10,8 +11,17 @@ export async function enforceGameTimeout(req: Request, _res: Response, next: Nex
     return;
   }
 
+  await sweepEventTimeoutIfNeeded("team_request");
   const [team, eventConfig] = await Promise.all([findTeamById(req.user.sub), getActiveEvent()]);
-  if (!team || !eventConfig || !team.start_time || team.status !== "active") {
+  if (!team || !eventConfig) {
+    next();
+    return;
+  }
+  if (team.status === "timeout") {
+    next(new ApiError(410, "Game timed out"));
+    return;
+  }
+  if (!team.start_time || team.status !== "active") {
     next();
     return;
   }
