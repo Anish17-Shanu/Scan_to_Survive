@@ -200,6 +200,48 @@ function computeMainSteps(rooms: Array<{ path_id: string | null; is_trap: boolea
   return 2 + Math.max(1, Math.floor(perPath));
 }
 
+function liveLeaderboardReason(
+  current: {
+    points: number;
+    projected_total_seconds: number | null;
+    hints_used: number;
+    trap_hits: number;
+    rapid_fire_score: number;
+  },
+  next?: {
+    points: number;
+    projected_total_seconds: number | null;
+    hints_used: number;
+    trap_hits: number;
+    rapid_fire_score: number;
+  }
+) {
+  if (!next) return "Rank held by full scoring order.";
+  if (current.points !== next.points) {
+    const diff = current.points - next.points;
+    return `${diff} point${diff === 1 ? "" : "s"} ahead on score.`;
+  }
+  const currentTime = current.projected_total_seconds ?? Number.MAX_SAFE_INTEGER;
+  const nextTime = next.projected_total_seconds ?? Number.MAX_SAFE_INTEGER;
+  if (currentTime !== nextTime) {
+    const diff = nextTime - currentTime;
+    return `${diff}s faster on adjusted total time at equal points.`;
+  }
+  if (current.hints_used !== next.hints_used) {
+    const diff = next.hints_used - current.hints_used;
+    return `${diff} fewer hint${diff === 1 ? "" : "s"} used at equal points/time.`;
+  }
+  if (current.trap_hits !== next.trap_hits) {
+    const diff = next.trap_hits - current.trap_hits;
+    return `${diff} fewer trap${diff === 1 ? "" : "s"} triggered at equal points/time/hints.`;
+  }
+  if (current.rapid_fire_score !== next.rapid_fire_score) {
+    const diff = current.rapid_fire_score - next.rapid_fire_score;
+    return `${diff} higher rapid-fire score on the final tie-break.`;
+  }
+  return "Virtually tied across all ranking checks.";
+}
+
 function buildRoomNumber(floor: number, index: number): string {
   return `${floor}${String(index).padStart(2, "0")}`;
 }
@@ -746,9 +788,10 @@ export async function adminMonitor() {
       if (a.current_order !== b.current_order) return b.current_order - a.current_order;
       return a.penalty_seconds - b.penalty_seconds;
     })
-    .map((row, index) => ({
+    .map((row, index, arr) => ({
       ...row,
-      rank: index + 1
+      rank: index + 1,
+      lead_reason: liveLeaderboardReason(row, arr[index + 1])
     }));
 
   const latestBroadcast = await getLatestEventLogByAction(event.id, "admin_broadcast");

@@ -221,8 +221,7 @@ for (const [label, endpoint, body] of [
         very_hard_orders: [7]
       }
     }
-  ],
-  ["launch", "/admin/launch", {}]
+  ]
 ]) {
   const res = await timedRequest("POST", endpoint, body, adminToken);
   track(res, label);
@@ -249,6 +248,13 @@ await Promise.all(
     if (res.ok) metrics.checks.teams_created += 1;
   })
 );
+
+const launch = await timedRequest("POST", "/admin/launch", {}, adminToken);
+track(launch, "launch");
+if (!launch.ok) {
+  console.error("Failed launch", launch.status, launch.payload);
+  process.exit(1);
+}
 
 const ops = await timedRequest("GET", "/admin/ops-package", undefined, adminToken);
 track(ops, "ops");

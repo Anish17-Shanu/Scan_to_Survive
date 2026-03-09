@@ -415,19 +415,6 @@ export function AdminPage() {
     ];
   }, [monitor, rehearsalMode]);
 
-  const winningReason = (row: {
-    points: number;
-    penalty_seconds: number;
-    hints_used: number;
-    trap_hits: number;
-    current_order: number;
-  }) => {
-    if (row.current_order >= 10) return "Deep progression lead";
-    if (row.points >= 900) return "High points momentum";
-    if (row.penalty_seconds <= 60 && row.trap_hits <= 1) return "Clean execution";
-    if (row.hints_used <= 1) return "Low hint reliance";
-    return "Balanced consistency";
-  };
   const commandTicker = [
     "CONTROL: Validate final key scans before rapid gate authorization.",
     "CONTROL: Monitor fairness alerts. High-severity anomalies require host review.",
@@ -1662,7 +1649,7 @@ export function AdminPage() {
                   </td>
                   <td>{row.points}</td>
                   <td>{timeText(row.projected_total_seconds)}</td>
-                  <td>{winningReason(row)}</td>
+                  <td>{row.lead_reason ?? "Rank held by full scoring order."}</td>
                 </tr>
               ))}
             </tbody>

@@ -62,6 +62,7 @@ export type AdminMonitorSnapshot = {
     rapid_total?: number | null;
     projected_total_seconds: number | null;
     progress_score: number;
+    lead_reason?: string;
   }>;
   question_stats: {
     total_questions_in_pool: number;

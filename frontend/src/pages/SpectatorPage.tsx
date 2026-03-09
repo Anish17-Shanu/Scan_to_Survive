@@ -19,6 +19,7 @@ type SpectatorPayload = {
     points: number;
     phase: string;
     current_order: number;
+    lead_reason?: string;
   }>;
   room_occupancy: Array<{ room_number: string; count: number }>;
   path_distribution: Array<{ path_name: string; assigned: number; max_capacity: number }>;
@@ -209,6 +210,7 @@ export function SpectatorPage() {
                 {(payload?.live_leaderboard ?? []).map((row) => (
                   <div key={`${row.rank}-${row.team_id}`} className="rounded-xl border border-white/10 bg-black/20 p-2">
                     #{row.rank} {row.team_name} | {row.team_id} | {row.phase} | Points {row.points}
+                    {row.lead_reason && <p className="mt-1 text-xs text-cyan-200">{row.lead_reason}</p>}
                   </div>
                 ))}
               </div>
