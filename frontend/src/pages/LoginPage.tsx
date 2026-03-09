@@ -1,7 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
-import { clearAuth, saveAuth } from "../lib/auth";
+import { clearAuth, clearTeamGameCache, saveAuth } from "../lib/auth";
 
 type Mode = "team" | "admin";
 
@@ -64,6 +64,7 @@ export function LoginPage() {
           team_name: teamName.trim(),
           password
         });
+        clearTeamGameCache(teamName.trim());
         localStorage.setItem("scan_tutorial_v3_done", "1");
         saveAuth(response.data.token, "team", response.data.team.team_name);
         navigate("/game");

@@ -27,3 +27,9 @@ export function getRole(): "team" | "admin" | null {
 export function getTeamName(): string | null {
   return localStorage.getItem(TEAM_KEY);
 }
+
+export function clearTeamGameCache(teamName: string): void {
+  const normalized = teamName.trim().toLowerCase();
+  if (!normalized) return;
+  localStorage.removeItem(`scan_live_state_v2:${normalized}`);
+}

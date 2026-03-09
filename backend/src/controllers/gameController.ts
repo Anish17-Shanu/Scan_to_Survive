@@ -86,9 +86,10 @@ export async function teamStatusController(req: Request, res: Response): Promise
   if (!req.user) throw new ApiError(401, "Unauthorized");
   const team = await findTeamById(req.user.sub);
   if (!team) throw new ApiError(404, "Team not found");
+  const terminalStatuses = new Set(["completed", "timeout", "disqualified"]);
   res.json({
     team,
-    should_redirect_finish: team.status !== "active"
+    should_redirect_finish: terminalStatuses.has(team.status)
   });
 }
 

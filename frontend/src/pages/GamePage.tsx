@@ -198,6 +198,10 @@ function parseApiError(err: unknown): { status: number; message: string } {
   return { status, message };
 }
 
+function isTerminalTeamStatus(status: string | null | undefined): boolean {
+  return status === "completed" || status === "timeout" || status === "disqualified";
+}
+
 const STORY_ARCS = [
   {
     id: "act1",
@@ -374,8 +378,11 @@ export function GamePage() {
       if (status === 403 || status === 409) {
         try {
           const statusResponse = await api.get<TeamStatusPayload>("/game/me-status");
-          if (statusResponse.data.should_redirect_finish) {
-            setTeam(statusResponse.data.team);
+          setTeam(statusResponse.data.team);
+          if (
+            statusResponse.data.should_redirect_finish &&
+            isTerminalTeamStatus(statusResponse.data.team?.status)
+          ) {
             navigate("/finish", { replace: true });
             return;
           }
@@ -551,7 +558,10 @@ export function GamePage() {
         const response = await api.get<TeamStatusPayload>("/game/me-status");
         if (!mounted) return;
         setTeam(response.data.team);
-        if (response.data.should_redirect_finish) {
+        if (
+          response.data.should_redirect_finish &&
+          isTerminalTeamStatus(response.data.team?.status)
+        ) {
           navigate("/finish", { replace: true });
         }
       } catch (err: unknown) {
@@ -576,7 +586,7 @@ export function GamePage() {
   }, [navigate, team?.id]);
 
   useEffect(() => {
-    if (team?.status === "active") return;
+    if (!isTerminalTeamStatus(team?.status)) return;
     let mounted = true;
     const checkWinnerReveal = async () => {
       try {

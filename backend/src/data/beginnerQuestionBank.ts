@@ -265,7 +265,15 @@ function answerFormatHint(answer: string): string {
     .filter(Boolean);
 
   if (variants.length > 1) {
-    return `type one accepted form, e.g. ${variants.map((v) => `"${v}"`).join(" or ")}`;
+    const hasNumericVariant = variants.some((v) => /^\d+(\.\d+)?$/.test(v));
+    const hasPhraseVariant = variants.some((v) => v.includes(" "));
+    const hasSymbolHeavyVariant = variants.some(
+      (v) => v.startsWith("git ") || v.includes(".") || v.includes("/") || v.includes("#") || v.includes("-")
+    );
+    if (hasNumericVariant && !hasPhraseVariant) return "numeric token or shorthand form";
+    if (hasPhraseVariant && !hasSymbolHeavyVariant) return "short term or full phrase";
+    if (hasSymbolHeavyVariant) return "exact technical token, shorthand, or full form";
+    return "short token or expanded form";
   }
 
   const token = variants[0] ?? "";
@@ -287,7 +295,10 @@ function curatedQuestionHints(entry: BankEntry): {
   const q = entry.question.toLowerCase();
   const a = entry.answer.toLowerCase();
   const variants = a.split("|").map((v) => v.trim()).filter(Boolean);
-  const variantHint = variants.length > 1 ? `Accepted variants: ${variants.join(" / ")}.` : "Use one exact standard token.";
+  const variantHint =
+    variants.length > 1
+      ? "Multiple equivalent answer forms are accepted; use the standard shorthand or the full formal term."
+      : "Use one exact standard token.";
   const formatHint = `Expected format: ${answerFormatHint(entry.answer)}.`;
 
   if (q.includes("stands for") || q.includes("abbreviated as") || q.includes("abbreviation")) {

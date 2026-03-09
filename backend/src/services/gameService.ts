@@ -160,7 +160,7 @@ function questionHintStagesFromPool(input: {
 }
 
 function stageMessage(stages: string[], priorUses: number): string {
-  if (stages.length === 0) return "Hint unavailable";
+  if (stages.length === 0) return "Mission intel sync unavailable";
   const idx = Math.min(priorUses, stages.length - 1);
   return stages[idx] ?? stages[stages.length - 1];
 }
@@ -873,7 +873,7 @@ export async function startGame(teamId: string) {
             latest_broadcast: broadcast,
             runes_collected: runeCount,
             hint_credits_remaining: hintCredits,
-            story_intro: "Rapid-fire timer ended. Mission sealed and score finalized.",
+            story_intro: "Rapid-fire timer expired. The Core Terminal sealed and your mission record has been finalized.",
             story_mission: storyMission,
             story_chapter: storyMission.chapter,
             route_briefing: buildRouteBriefing({
@@ -1112,7 +1112,7 @@ export async function startGame(teamId: string) {
     final_key_state: await getFinalKeyState(event.id, updated.id),
     next_room_clue: initialTarget
       ? buildRoomClue(initialTarget, updated.current_order, answerToken(updated.team_name), false)
-      : fallbackClue("Primary route clue unavailable. Proceed to event desk for immediate route sync.")
+      : fallbackClue("Mission Control lost the primary route packet. Report to Command for immediate node resync.")
   };
 }
 
@@ -1383,7 +1383,7 @@ export async function scanRoom(teamId: string, roomCode: string) {
               true,
               true
             )
-          : fallbackClue("Shield skip completed. Proceed to event desk for route sync.")
+          : fallbackClue("Shield block confirmed. Route telemetry is unstable; report to Command for node resync.")
       };
     }
     const trapClass = trapClassFor({ teamId: team.id, trapRoomCode: room.room_code, order: team.current_order });
@@ -1708,7 +1708,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
               false,
               assistMode
             )
-          : fallbackClue("Trap resolved but next clue unavailable. Proceed to event desk for checkpoint sync.")
+          : fallbackClue("Corruption purge complete, but the next node packet is unstable. Report to Command for checkpoint sync.")
       };
     }
 
@@ -1789,7 +1789,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
               false,
               true
             )
-          : fallbackClue("Reroute clue unavailable. Proceed to event desk for checkpoint sync.")
+          : fallbackClue("NULL interference disrupted the reroute packet. Report to Command for checkpoint sync.")
       };
     }
 
@@ -1809,7 +1809,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
             false,
             assistMode
           )
-        : fallbackClue("Next room clue unavailable. Proceed to event desk for route sync.")
+        : fallbackClue("The next node packet failed to decrypt. Report to Command for route sync.")
     };
   }
   await enforceSingleSubmission({
@@ -1891,7 +1891,7 @@ export async function submitAnswer(teamId: string, input: { roomCode: string; an
               false,
               true
             )
-          : fallbackClue("Route advance failed. Proceed to event desk for checkpoint sync.")
+          : fallbackClue("Route advance packet failed integrity checks. Report to Command for checkpoint sync.")
       };
     }
     const sameFloorTraps = trapCandidates.filter((r) => r.floor === expected.floor);
@@ -2115,7 +2115,7 @@ export async function useHint(teamId: string) {
     listTeamActionLogs(event.id, team.id, LOG_ACTIONS.HINT_USED, 300)
   ]);
   const currentRoom = team.current_room_id ? rooms.find((r) => r.id === team.current_room_id) : null;
-  let hint = "Hint unavailable";
+  let hint = "Mission intel sync unavailable";
   let checkpointKey = `checkpoint:${team.current_order}:generic`;
   let hintStage = 1;
   if (currentRoom?.is_trap) {
@@ -2177,7 +2177,7 @@ export async function useHint(teamId: string) {
           pulseCharges: team.pulse_charges,
           hintCredits
         })}`
-      : "Hint unavailable";
+      : "Mission intel sync unavailable";
     if (question) {
       const stageLen = questionHintStagesFromPool({
         difficulty: question.difficulty_level,
@@ -2216,7 +2216,7 @@ export async function useHint(teamId: string) {
         hintCredits
       })}`;
     } else {
-      hint = `Route hint unavailable. ${abilityGuidance({
+      hint = `Route intel packet unavailable. ${abilityGuidance({
         shieldActive: team.shield_active,
         shieldCharges: team.shield_charges,
         pulseCharges: team.pulse_charges,
@@ -2312,8 +2312,8 @@ export async function useAbility(teamId: string, ability: "shield" | "pulse") {
       pulseMessage = `Pulse route intel: target floor ${expected.floor ?? "?"}, clue style ${routeHint.clue_style}. ${firstClue}`;
       nextRoomClue = routeHint;
     } else {
-      pulseMessage = "Pulse route hint unavailable. Confirm current checkpoint with event desk.";
-      nextRoomClue = fallbackClue("Route currently unavailable. Check with event desk.");
+      pulseMessage = "Pulse route intel unavailable. Confirm current checkpoint with Mission Control.";
+      nextRoomClue = fallbackClue("Mission Control cannot confirm the live route packet. Report to Command for manual verification.");
     }
   }
   const updated = await updateTeamWithVersion(team.id, team.version, {
