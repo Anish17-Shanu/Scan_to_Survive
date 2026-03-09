@@ -715,7 +715,7 @@ export function GamePage() {
         if (scanData.type === "powerup") {
           audioManager.play("powerup");
           setFeedback(scanData.message);
-          setActivityFeed((prev) => [`Power-up unlocked`, ...prev].slice(0, 10));
+          setActivityFeed((prev) => [`Support node synchronized`, ...prev].slice(0, 10));
           setScanEnabled(false);
           return;
         }
@@ -723,7 +723,7 @@ export function GamePage() {
         audioManager.play("powerup");
         setFeedback(scanData.message);
         if (scanData.runes_collected !== undefined) setRunesCollected(scanData.runes_collected);
-        setActivityFeed((prev) => [`Rune fragment recovered`, ...prev].slice(0, 10));
+        setActivityFeed((prev) => [`Node fragment recovered`, ...prev].slice(0, 10));
         setScanEnabled(false);
         return;
       }

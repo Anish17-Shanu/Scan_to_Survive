@@ -515,13 +515,13 @@ function buildRoomClue(
 function fallbackClue(message: string) {
   return {
     clue_style: "fallback",
-    title: "Fallback Route Clue",
+    title: "Mission Recovery Packet",
     clue_text: message,
-    decode_hint: "Cross-check with your teammate and continue to the next instructed checkpoint.",
+    decode_hint: "Cross-check with your teammate and resume the last verified checkpoint packet.",
     clue_hints: [
-      "Hint 1: Confirm your current order with the event desk.",
-      "Hint 2: Re-scan only the expected room QR from latest clue.",
-      "Hint 3: Resume strict scan-submit-decode flow."
+      "Hint 1: Confirm your current order with Mission Control.",
+      "Hint 2: Re-scan only the latest verified room QR.",
+      "Hint 3: Resume the scan -> solve -> decode route loop."
     ],
     unlock_token: "fallback"
   };
