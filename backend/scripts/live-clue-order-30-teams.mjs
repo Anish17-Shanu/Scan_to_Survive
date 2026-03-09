@@ -219,8 +219,8 @@ function decodeAndValidateClue(team, clue, context, roomCodeByNumber, trapRoomNu
 }
 
 async function runSerial(items, fn) {
-  for (const item of items) {
-    await fn(item);
+  for (const [index, item] of items.entries()) {
+    await fn(item, index);
     await sleep(STEP_DELAY_MS);
   }
 }
