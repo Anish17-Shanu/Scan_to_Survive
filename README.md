@@ -1,5 +1,10 @@
 # Scan to Survive - Dynamic Engine Edition
 
+## Creator
+
+This project was created, written, and maintained by **Anish Kumar (ANISH KUMAR)**.
+All primary documentation in this README is presented as the work of **Anish Kumar**.
+
 Distributed, event-configurable QR escape-room platform for 5-200 teams.
 
 ## Features

@@ -2,6 +2,7 @@
   "name": "scan-to-survive-backend",
   "version": "1.0.0",
   "private": true,
+  "author": "Anish Kumar",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
