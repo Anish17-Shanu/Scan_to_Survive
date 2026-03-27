@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-// Created by ANISH KUMAR.
+// Created by Anish Kumar.
 
 const WORKFLOW_STEPS = [
   {

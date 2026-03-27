@@ -2,8 +2,8 @@
 
 ## Creator
 
-This project was created, written, and maintained by **ANISH KUMAR**.
-All primary documentation in this README is presented as the work of **ANISH KUMAR**.
+This project was created, written, and maintained by **Anish Kumar**.
+All primary documentation in this README is presented as the work of **Anish Kumar**.
 
 Distributed, event-configurable QR escape-room platform for 5-200 teams.
 
