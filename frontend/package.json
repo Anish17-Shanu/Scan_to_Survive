@@ -2,7 +2,7 @@
   "name": "scan-to-survive-frontend",
   "private": true,
   "version": "1.0.0",
-  "author": "Anish Kumar",
+  "author": "ANISH KUMAR",
   "type": "module",
   "scripts": {
     "dev": "vite",
